@@ -2,10 +2,13 @@ package com.teamsparta.todo.domain.todo.controller
 
 import com.teamsparta.todo.domain.todo.dto.CreateTodoRequest
 import com.teamsparta.todo.domain.todo.dto.TodoResponse
+import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponse
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequest
+import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequest
 import com.teamsparta.todo.domain.todo.service.TodoService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -23,7 +26,10 @@ class TodoController(private val todoService: TodoService) {
     }
 
     @GetMapping("/{todoId}")
-    fun getTodoById(@PathVariable("todoId") id: Long): TodoResponse {
+    fun getTodoById(
+        @PathVariable("todoId")
+        id: Long,
+    ): TodoWithCommentsResponse {
         return todoService.getTodoById(id)
     }
 
@@ -37,14 +43,28 @@ class TodoController(private val todoService: TodoService) {
 
     @PutMapping("/{todoId}")
     fun updateTodo(
-        @PathVariable("todoId") id: Long,
-        @RequestBody updateTodoRequest: UpdateTodoRequest,
+        @PathVariable("todoId")
+        id: Long,
+        @RequestBody
+        updateTodoRequest: UpdateTodoRequest,
     ): TodoResponse {
         return todoService.updateTodo(id, updateTodoRequest)
     }
 
     @DeleteMapping("/{todoId}")
-    fun deleteTodo(@PathVariable("todoId") id: Long) {
+    fun deleteTodo(
+        @PathVariable("todoId")
+        id: Long,
+    ) {
         todoService.deleteTodo(id)
+    }
+
+    @PatchMapping("/{todoId}")
+    fun updateTodoStatus(
+        @PathVariable("todoId")
+        id: Long,
+        updateTodoStatusRequest: UpdateTodoStatusRequest,
+    ): TodoResponse {
+        return todoService.updateTodoStatus(id, updateTodoStatusRequest)
     }
 }

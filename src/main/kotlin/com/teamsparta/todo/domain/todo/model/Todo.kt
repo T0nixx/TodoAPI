@@ -1,9 +1,13 @@
 package com.teamsparta.todo.domain.todo.model
 
+import com.teamsparta.todo.domain.comment.dto.CommentResponse
 import com.teamsparta.todo.domain.todo.dto.TodoResponse
+import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponse
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -28,6 +32,10 @@ class Todo(
     @CreatedDate
     @Column(name = "createdAt", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    var status: TodoStatus = TodoStatus.TODO,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +47,21 @@ class Todo(
         this.content = newContent
     }
 
+    fun isDone(): Boolean {
+        return status == TodoStatus.DONE
+    }
+
+    fun isTodo(): Boolean {
+        return status == TodoStatus.TODO
+    }
+
+    fun complete() {
+        this.status = TodoStatus.DONE
+    }
+
+    fun reopen() {
+        this.status = TodoStatus.TODO
+    }
 }
 
 fun Todo.toResponse(): TodoResponse {
@@ -48,6 +71,20 @@ fun Todo.toResponse(): TodoResponse {
         title = title,
         content = content,
         writer = writer,
+        status = status.name,
         createdAt = createdAt.toString(),
+    )
+}
+
+fun Todo.toWithCommentsResponse(comments: List<CommentResponse>): TodoWithCommentsResponse {
+
+    return TodoWithCommentsResponse(
+        id = id!!,
+        title = title,
+        content = content,
+        writer = writer,
+        createdAt = createdAt.toString(),
+        status = status.name,
+        comments = comments,
     )
 }

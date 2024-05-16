@@ -11,4 +11,9 @@ class GlobalExceptionHandler {
     fun handleModelNotFoundException(e: ModelNotFoundException): ErrorResponse {
         return ErrorResponse(message = e.message)
     }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ErrorResponse {
+        return ErrorResponse(message = e.message)
+    }
 }
