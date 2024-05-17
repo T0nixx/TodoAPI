@@ -139,7 +139,7 @@ class TodoServiceImpl(
             commentRepository.findByIdOrNull(commentId)
                 ?: throw ModelNotFoundException("Comment", commentId)
         if (comment.todo.id != todo.id) {
-            throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId)")
+            throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
         }
 
         val (auth, data) = updateCommentRequest
@@ -152,7 +152,9 @@ class TodoServiceImpl(
         ) throw IllegalArgumentException(
             "Writer or Password do not match",
         )
-
+        if (comment.content == data.content) {
+            throw IllegalArgumentException("New content: $comment.content is same with old one.")
+        }
         comment.updateContent(data.content)
         return commentRepository.save(comment).toResponse()
     }
@@ -170,7 +172,7 @@ class TodoServiceImpl(
                 ?: throw ModelNotFoundException("Comment", commentId)
 
         if (comment.todo.id != todo.id) {
-            throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId)")
+            throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
         }
 
         val (auth) = deleteCommentRequest
@@ -181,7 +183,7 @@ class TodoServiceImpl(
                 comment.password,
             ) == false
         ) throw IllegalArgumentException(
-            "Writer or Password do not match",
+            "Writer or Password do not match.",
         )
 
         commentRepository.delete(comment)
