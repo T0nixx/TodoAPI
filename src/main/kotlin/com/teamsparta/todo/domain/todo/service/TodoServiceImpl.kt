@@ -142,10 +142,10 @@ class TodoServiceImpl(
             throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId)")
         }
 
-        val (writer, password, content) = updateCommentRequest
+        val (auth, data) = updateCommentRequest
 
-        if (writer != comment.writer || passwordEncoder.matches(
-                password,
+        if (auth.writer != comment.writer || passwordEncoder.matches(
+                auth.password,
                 comment.salt,
                 comment.password,
             ) == false
@@ -153,7 +153,7 @@ class TodoServiceImpl(
             "Writer or Password do not match",
         )
 
-        comment.updateContent(content)
+        comment.updateContent(data.content)
         return commentRepository.save(comment).toResponse()
     }
 
@@ -173,10 +173,10 @@ class TodoServiceImpl(
             throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId)")
         }
 
-        val (writer, password) = deleteCommentRequest
+        val (auth) = deleteCommentRequest
 
-        if (writer != comment.writer || passwordEncoder.matches(
-                password,
+        if (auth.writer != comment.writer || passwordEncoder.matches(
+                auth.password,
                 comment.salt,
                 comment.password,
             ) == false
