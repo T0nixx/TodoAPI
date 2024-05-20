@@ -1,49 +1,28 @@
 package com.teamsparta.todo.domain.todo.service
 
-import com.teamsparta.todo.domain.comment.dto.AddCommentRequest
-import com.teamsparta.todo.domain.comment.dto.CommentResponse
-import com.teamsparta.todo.domain.comment.dto.DeleteCommentRequest
-import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequest
-import com.teamsparta.todo.domain.todo.dto.CreateTodoRequest
-import com.teamsparta.todo.domain.todo.dto.TodoResponse
-import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponse
-import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequest
-import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequest
+import com.teamsparta.todo.domain.todo.dto.CreateTodoRequestDto
+import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
+import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
+import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
+import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
 
 interface TodoService {
-    fun getTodoList(): List<TodoResponse>
+    fun getTodoList(): List<TodoResponseDto>
 
-    fun getTodoById(todoId: Long): TodoWithCommentsResponse
+    fun getTodoById(todoId: Long): TodoWithCommentsResponseDto
 
-    fun createTodo(createTodoRequest: CreateTodoRequest): TodoResponse
+    fun createTodo(createTodoRequest: CreateTodoRequestDto): TodoResponseDto
 
     fun updateTodo(
         todoId: Long,
-        updateTodoRequest: UpdateTodoRequest,
-    ): TodoResponse
+        updateTodoRequest: UpdateTodoRequestDto,
+    ): TodoResponseDto
 
     fun updateTodoStatus(
         todoId: Long,
-        updateTodoStatusRequest: UpdateTodoStatusRequest,
-    ): TodoResponse
+        updateTodoStatusRequest: UpdateTodoStatusRequestDto,
+    ): TodoResponseDto
 
     fun deleteTodo(todoId: Long)
-
-    fun addComment(
-        todoId: Long,
-        addCommentRequest: AddCommentRequest,
-    ): CommentResponse
-
-    fun updateComment(
-        todoId: Long,
-        commentId: Long,
-        updateCommentRequest: UpdateCommentRequest,
-    ): CommentResponse
-
-    fun deleteComment(
-        todoId: Long,
-        commentId: Long,
-        deleteCommentRequest: DeleteCommentRequest,
-    )
 
 }

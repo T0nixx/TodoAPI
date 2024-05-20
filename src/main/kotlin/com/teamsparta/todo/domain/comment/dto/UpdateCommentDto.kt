@@ -1,7 +1,5 @@
 package com.teamsparta.todo.domain.comment.dto
 
-data class CommentResponse(
-    val id: Long,
-    val writer: String,
+data class UpdateCommentDto(
     val content: String,
 )

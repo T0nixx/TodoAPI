@@ -1,8 +1,8 @@
 package com.teamsparta.todo.domain.todo.model
 
-import com.teamsparta.todo.domain.comment.dto.CommentResponse
-import com.teamsparta.todo.domain.todo.dto.TodoResponse
-import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponse
+import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
+import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
+import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
@@ -59,9 +59,9 @@ class Todo(
     }
 }
 
-fun Todo.toResponse(): TodoResponse {
+fun Todo.toResponse(): TodoResponseDto {
 
-    return TodoResponse(
+    return TodoResponseDto(
         id = id!!,
         title = title,
         content = content,
@@ -71,9 +71,9 @@ fun Todo.toResponse(): TodoResponse {
     )
 }
 
-fun Todo.toWithCommentsResponse(comments: List<CommentResponse>): TodoWithCommentsResponse {
+fun Todo.toWithCommentsResponse(comments: List<CommentResponseDto>): TodoWithCommentsResponseDto {
 
-    return TodoWithCommentsResponse(
+    return TodoWithCommentsResponseDto(
         id = id!!,
         title = title,
         content = content,

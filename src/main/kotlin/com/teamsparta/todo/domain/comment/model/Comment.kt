@@ -1,6 +1,6 @@
 package com.teamsparta.todo.domain.comment.model
 
-import com.teamsparta.todo.domain.comment.dto.CommentResponse
+import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.todo.model.Todo
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -45,9 +45,9 @@ class Comment(
     }
 }
 
-fun Comment.toResponse(): CommentResponse {
+fun Comment.toResponse(): CommentResponseDto {
 
-    return CommentResponse(
+    return CommentResponseDto(
         id = this.id!!,
         content = this.content,
         writer = this.writer,

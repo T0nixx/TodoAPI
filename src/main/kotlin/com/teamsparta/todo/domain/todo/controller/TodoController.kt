@@ -1,10 +1,10 @@
 package com.teamsparta.todo.domain.todo.controller
 
-import com.teamsparta.todo.domain.todo.dto.CreateTodoRequest
-import com.teamsparta.todo.domain.todo.dto.TodoResponse
-import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponse
-import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequest
-import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequest
+import com.teamsparta.todo.domain.todo.dto.CreateTodoRequestDto
+import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
+import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
+import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
+import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
 import com.teamsparta.todo.domain.todo.service.TodoService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 class TodoController(private val todoService: TodoService) {
 
     @GetMapping
-    fun getTodos(): List<TodoResponse> {
+    fun getTodos(): List<TodoResponseDto> {
         return todoService.getTodoList()
     }
 
@@ -29,15 +29,15 @@ class TodoController(private val todoService: TodoService) {
     fun getTodoById(
         @PathVariable("todoId")
         id: Long,
-    ): TodoWithCommentsResponse {
+    ): TodoWithCommentsResponseDto {
         return todoService.getTodoById(id)
     }
 
     @PostMapping
     fun createTodo(
         @RequestBody
-        createTodoRequest: CreateTodoRequest,
-    ): TodoResponse {
+        createTodoRequest: CreateTodoRequestDto,
+    ): TodoResponseDto {
         return todoService.createTodo(createTodoRequest)
     }
 
@@ -46,8 +46,8 @@ class TodoController(private val todoService: TodoService) {
         @PathVariable("todoId")
         id: Long,
         @RequestBody
-        updateTodoRequest: UpdateTodoRequest,
-    ): TodoResponse {
+        updateTodoRequest: UpdateTodoRequestDto,
+    ): TodoResponseDto {
         return todoService.updateTodo(id, updateTodoRequest)
     }
 
@@ -63,8 +63,8 @@ class TodoController(private val todoService: TodoService) {
     fun updateTodoStatus(
         @PathVariable("todoId")
         id: Long,
-        updateTodoStatusRequest: UpdateTodoStatusRequest,
-    ): TodoResponse {
+        updateTodoStatusRequest: UpdateTodoStatusRequestDto,
+    ): TodoResponseDto {
         return todoService.updateTodoStatus(id, updateTodoStatusRequest)
     }
 }

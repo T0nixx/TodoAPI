@@ -1,5 +1,5 @@
 package com.teamsparta.todo.domain.todo.dto
 
-data class UpdateTodoStatusRequest(
+data class UpdateTodoStatusRequestDto(
     val status: String,
 )

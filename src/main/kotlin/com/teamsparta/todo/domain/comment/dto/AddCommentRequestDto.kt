@@ -1,6 +1,6 @@
 package com.teamsparta.todo.domain.comment.dto
 
-data class AddCommentRequest(
+data class AddCommentRequestDto(
     val writer: String,
     val password: String,
     val content: String,
