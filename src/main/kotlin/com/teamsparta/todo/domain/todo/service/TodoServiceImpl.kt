@@ -15,12 +15,12 @@ import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponse
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequest
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequest
 import com.teamsparta.todo.domain.todo.model.Todo
-import com.teamsparta.todo.domain.todo.model.TodoStatus
 import com.teamsparta.todo.domain.todo.model.toResponse
 import com.teamsparta.todo.domain.todo.model.toWithCommentsResponse
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
@@ -45,6 +45,7 @@ class TodoServiceImpl(
         return todo.toWithCommentsResponse(commentResponses)
     }
 
+    @Transactional
     override fun createTodo(createTodoRequest: CreateTodoRequest): TodoResponse {
         val (title, writer, content) = createTodoRequest
 
@@ -52,6 +53,7 @@ class TodoServiceImpl(
         return todoRepository.save(todo).toResponse()
     }
 
+    @Transactional
     override fun updateTodo(
         todoId: Long,
         updateTodoRequest: UpdateTodoRequest,
@@ -66,6 +68,7 @@ class TodoServiceImpl(
         return todoRepository.save(todo).toResponse()
     }
 
+    @Transactional
     override fun updateTodoStatus(
         todoId: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequest,
@@ -80,6 +83,7 @@ class TodoServiceImpl(
         return todoRepository.save(todo).toResponse()
     }
 
+    @Transactional
     override fun deleteTodo(todoId: Long) {
         val todo =
             todoRepository.findByIdOrNull(todoId)
@@ -89,6 +93,7 @@ class TodoServiceImpl(
         todoRepository.delete(todo)
     }
 
+    @Transactional
     override fun addComment(
         todoId: Long,
         addCommentRequest: AddCommentRequest,
@@ -110,6 +115,7 @@ class TodoServiceImpl(
         return commentRepository.save(comment).toResponse()
     }
 
+    @Transactional
     override fun updateComment(
         todoId: Long,
         commentId: Long,
@@ -143,6 +149,7 @@ class TodoServiceImpl(
         return commentRepository.save(comment).toResponse()
     }
 
+    @Transactional
     override fun deleteComment(
         todoId: Long,
         commentId: Long,
