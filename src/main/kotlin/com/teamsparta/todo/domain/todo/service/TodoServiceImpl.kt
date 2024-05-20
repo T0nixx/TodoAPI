@@ -75,23 +75,7 @@ class TodoServiceImpl(
                 ?: throw ModelNotFoundException("Todo", todoId)
         val (status) = updateTodoStatusRequest
 
-        when (status) {
-            TodoStatus.TODO.name -> {
-                if (todo.isTodo()) {
-                    throw IllegalArgumentException("New status: $status is same with old one.")
-                }
-                todo.reopen()
-            }
-
-            TodoStatus.DONE.name -> {
-                if (todo.isDone()) {
-                    throw IllegalArgumentException("New status: $status is same with old one.")
-                }
-                todo.complete()
-            }
-
-            else -> throw IllegalArgumentException("$status is invalid status.")
-        }
+        todo.updateStatus(status)
 
         return todoRepository.save(todo).toResponse()
     }

@@ -47,20 +47,15 @@ class Todo(
         this.content = newContent
     }
 
-    fun isDone(): Boolean {
-        return status == TodoStatus.DONE
-    }
+    fun updateStatus(newStatusString: String) {
+        val newStatus =
+            enumValues<TodoStatus>().find { it.name == newStatusString }
+                ?: throw IllegalArgumentException("$newStatusString is invalid status.")
+        if (newStatus == this.status) {
+            throw IllegalArgumentException("New status: $newStatusString is same with old one.")
+        }
 
-    fun isTodo(): Boolean {
-        return status == TodoStatus.TODO
-    }
-
-    fun complete() {
-        this.status = TodoStatus.DONE
-    }
-
-    fun reopen() {
-        this.status = TodoStatus.TODO
+        this.status = newStatus
     }
 }
 
