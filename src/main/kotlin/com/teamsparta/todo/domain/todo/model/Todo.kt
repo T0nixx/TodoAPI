@@ -59,7 +59,7 @@ class Todo(
     }
 }
 
-fun Todo.toResponse(): TodoResponseDto {
+fun Todo.toResponseDto(): TodoResponseDto {
 
     return TodoResponseDto(
         id = id!!,
@@ -71,7 +71,7 @@ fun Todo.toResponse(): TodoResponseDto {
     )
 }
 
-fun Todo.toWithCommentsResponse(comments: List<CommentResponseDto>): TodoWithCommentsResponseDto {
+fun Todo.toWithCommentsResponseDto(comments: List<CommentResponseDto>): TodoWithCommentsResponseDto {
 
     return TodoWithCommentsResponseDto(
         id = id!!,

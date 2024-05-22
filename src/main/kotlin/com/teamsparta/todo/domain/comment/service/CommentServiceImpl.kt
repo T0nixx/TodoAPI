@@ -5,7 +5,7 @@ import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.comment.dto.DeleteCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
 import com.teamsparta.todo.domain.comment.model.Comment
-import com.teamsparta.todo.domain.comment.model.toResponse
+import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
 import com.teamsparta.todo.domain.security.PasswordEncoder
@@ -41,7 +41,7 @@ class CommentServiceImpl(
             salt = salt,
         )
 
-        return commentRepository.save(comment).toResponse()
+        return commentRepository.save(comment).toResponseDto()
     }
 
     @Transactional
@@ -74,7 +74,7 @@ class CommentServiceImpl(
         )
 
         comment.updateContent(data.content)
-        return commentRepository.save(comment).toResponse()
+        return commentRepository.save(comment).toResponseDto()
     }
 
     @Transactional

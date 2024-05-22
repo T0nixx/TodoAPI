@@ -45,7 +45,7 @@ class Comment(
     }
 }
 
-fun Comment.toResponse(): CommentResponseDto {
+fun Comment.toResponseDto(): CommentResponseDto {
 
     return CommentResponseDto(
         id = this.id!!,

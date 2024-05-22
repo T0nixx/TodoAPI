@@ -1,6 +1,6 @@
 package com.teamsparta.todo.domain.todo.service
 
-import com.teamsparta.todo.domain.comment.model.toResponse
+import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
 import com.teamsparta.todo.domain.todo.dto.CreateTodoRequestDto
@@ -9,8 +9,8 @@ import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
 import com.teamsparta.todo.domain.todo.model.Todo
-import com.teamsparta.todo.domain.todo.model.toResponse
-import com.teamsparta.todo.domain.todo.model.toWithCommentsResponse
+import com.teamsparta.todo.domain.todo.model.toResponseDto
+import com.teamsparta.todo.domain.todo.model.toWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -26,7 +26,7 @@ class TodoServiceImpl(
         return todoRepository
             .findAll()
             .sortedByDescending { it.createdAt }
-            .map { it.toResponse() }
+            .map { it.toResponseDto() }
     }
 
     override fun getTodoById(todoId: Long): TodoWithCommentsResponseDto {
@@ -34,8 +34,8 @@ class TodoServiceImpl(
             todoRepository.findByIdOrNull(todoId)
                 ?: throw ModelNotFoundException("Todo", todoId)
         val comments = commentRepository.findAllByTodoId(todoId)
-        val commentResponses = comments.map { it.toResponse() }
-        return todo.toWithCommentsResponse(commentResponses)
+        val commentResponses = comments.map { it.toResponseDto() }
+        return todo.toWithCommentsResponseDto(commentResponses)
     }
 
     @Transactional
@@ -43,7 +43,7 @@ class TodoServiceImpl(
         val (title, writer, content) = createTodoRequest
 
         val todo = Todo(title = title, writer = writer, content = content)
-        return todoRepository.save(todo).toResponse()
+        return todoRepository.save(todo).toResponseDto()
     }
 
     @Transactional
@@ -58,7 +58,7 @@ class TodoServiceImpl(
         val (title, writer, content) = updateTodoRequest
         todo.update(title, writer, content)
 
-        return todoRepository.save(todo).toResponse()
+        return todoRepository.save(todo).toResponseDto()
     }
 
     @Transactional
@@ -73,7 +73,7 @@ class TodoServiceImpl(
 
         todo.updateStatus(status)
 
-        return todoRepository.save(todo).toResponse()
+        return todoRepository.save(todo).toResponseDto()
     }
 
     @Transactional
