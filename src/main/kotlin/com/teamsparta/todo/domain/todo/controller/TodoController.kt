@@ -5,8 +5,13 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
+import com.teamsparta.todo.domain.todo.model.SortDirection
 import com.teamsparta.todo.domain.todo.service.TodoService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -26,70 +31,102 @@ class TodoController(private val todoService: TodoService) {
         summary = "TODO 목록 조회",
         description = "TODO 목록을 작성일을 기준으로 정렬하여 조회합니다.",
     )
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "400")
     @GetMapping
     fun getTodos(
         @RequestParam
-        sortDirection: String,
-    ): List<TodoResponseDto> {
-        return todoService.getTodoList(sortDirection)
+        sortDirection: SortDirection?,
+        @RequestParam
+        writer: String?,
+    ): ResponseEntity<List<TodoResponseDto>> {
+        return ResponseEntity.status(HttpStatus.OK).body(
+            todoService.getTodoList(
+                sortDirection = sortDirection ?: SortDirection.DESCENDING,
+                writer = writer,
+            ),
+        )
     }
 
     @Operation(
         summary = "특정 TODO 조회",
+        description = "선택된 TODO와 TODO에 달린 Comment들을 조회합니다.",
     )
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "400")
     @GetMapping("/{todoId}")
     fun getTodoById(
         @PathVariable("todoId")
         id: Long,
-    ): TodoWithCommentsResponseDto {
-        return todoService.getTodoById(id)
+    ): ResponseEntity<TodoWithCommentsResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(todoService.getTodoById(id))
     }
 
     @Operation(
         summary = "TODO 생성",
     )
+    @ApiResponse(responseCode = "201")
+    @ApiResponse(responseCode = "400")
     @PostMapping
     fun createTodo(
+        @Valid
         @RequestBody
         createTodoRequest: CreateTodoRequestDto,
-    ): TodoResponseDto {
-        return todoService.createTodo(createTodoRequest)
+    ): ResponseEntity<TodoResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(todoService.createTodo(createTodoRequest))
     }
 
     @Operation(
         summary = "TODO 수정",
     )
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "400")
     @PutMapping("/{todoId}")
     fun updateTodo(
         @PathVariable("todoId")
         id: Long,
+        @Valid
         @RequestBody
         updateTodoRequest: UpdateTodoRequestDto,
-    ): TodoResponseDto {
-        return todoService.updateTodo(id, updateTodoRequest)
+    ): ResponseEntity<TodoResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(todoService.updateTodo(id, updateTodoRequest))
     }
 
     @Operation(
         summary = "TODO 삭제",
     )
+    @ApiResponse(responseCode = "204")
+    @ApiResponse(responseCode = "400")
     @DeleteMapping("/{todoId}")
     fun deleteTodo(
         @PathVariable("todoId")
         id: Long,
-    ) {
-        todoService.deleteTodo(id)
+    ): ResponseEntity<Unit> {
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(todoService.deleteTodo(id))
     }
 
     @Operation(
         summary = "TODO 상태 변경",
         description = "TODO의 상태를 변경합니다. 가능한 상태: TODO, DONE",
     )
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "400")
     @PatchMapping("/{todoId}")
     fun updateTodoStatus(
         @PathVariable("todoId")
         id: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
-    ): TodoResponseDto {
-        return todoService.updateTodoStatus(id, updateTodoStatusRequest)
+    ): ResponseEntity<TodoResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(todoService.updateTodoStatus(id, updateTodoStatusRequest))
     }
 }

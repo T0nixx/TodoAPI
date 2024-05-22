@@ -5,9 +5,13 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
+import com.teamsparta.todo.domain.todo.model.SortDirection
 
 interface TodoService {
-    fun getTodoList(): List<TodoResponseDto>
+    fun getTodoList(
+        sortDirection: SortDirection,
+        writer: String?,
+    ): List<TodoResponseDto>
 
     fun getTodoById(todoId: Long): TodoWithCommentsResponseDto
 

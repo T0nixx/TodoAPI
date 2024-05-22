@@ -8,6 +8,7 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
+import com.teamsparta.todo.domain.todo.model.SortDirection
 import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.model.toResponseDto
 import com.teamsparta.todo.domain.todo.model.toWithCommentsResponseDto
@@ -22,11 +23,20 @@ class TodoServiceImpl(
     private val commentRepository: CommentRepository,
 ) : TodoService {
 
-    override fun getTodoList(): List<TodoResponseDto> {
-        return todoRepository
-            .findAll()
-            .sortedByDescending { it.createdAt }
-            .map { it.toResponseDto() }
+    override fun getTodoList(
+        sortDirection: SortDirection,
+        writer: String?,
+    ): List<TodoResponseDto> {
+        val todos =
+            if (writer == null) todoRepository.findAll()
+            else todoRepository.findAllByWriter(writer)
+
+        return if (sortDirection == SortDirection.ASCENDING) {
+            todos.sortedBy { it.createdAt }
+        }
+        else {
+            todos.sortedByDescending { it.createdAt }
+        }.map { it.toResponseDto() }
     }
 
     override fun getTodoById(todoId: Long): TodoWithCommentsResponseDto {

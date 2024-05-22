@@ -6,6 +6,8 @@ import com.teamsparta.todo.domain.comment.dto.DeleteCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
 import com.teamsparta.todo.domain.comment.service.CommentService
 import io.swagger.v3.oas.annotations.Operation
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -25,8 +27,10 @@ class CommentController(private val commentService: CommentService) {
         todoId: Long,
         @RequestBody
         addCommentRequest: AddCommentRequestDto,
-    ): CommentResponseDto {
-        return commentService.addComment(todoId, addCommentRequest)
+    ): ResponseEntity<CommentResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(commentService.addComment(todoId, addCommentRequest))
     }
 
     @Operation(summary = "댓글 수정")
@@ -38,11 +42,13 @@ class CommentController(private val commentService: CommentService) {
         commentId: Long,
         @RequestBody
         updateCommentRequest: UpdateCommentRequestDto,
-    ): CommentResponseDto {
-        return commentService.updateComment(
-            todoId,
-            commentId,
-            updateCommentRequest,
+    ): ResponseEntity<CommentResponseDto> {
+        return ResponseEntity.status(HttpStatus.OK).body(
+            commentService.updateComment(
+                todoId,
+                commentId,
+                updateCommentRequest,
+            ),
         )
     }
 
@@ -55,11 +61,13 @@ class CommentController(private val commentService: CommentService) {
         commentId: Long,
         @RequestBody
         deleteCommentRequest: DeleteCommentRequestDto,
-    ) {
-        return commentService.deleteComment(
-            todoId,
-            commentId,
-            deleteCommentRequest,
+    ): ResponseEntity<Unit> {
+        return ResponseEntity.status(HttpStatus.OK).body(
+            commentService.deleteComment(
+                todoId,
+                commentId,
+                deleteCommentRequest,
+            ),
         )
     }
 
