@@ -4,6 +4,8 @@ import com.teamsparta.todo.domain.user.dto.SignInResponseDto
 import com.teamsparta.todo.domain.user.dto.UserResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -24,7 +26,10 @@ class User(
     @Column(name = "salt", nullable = false, updatable = false)
     val salt: String,
 
-    ) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    val role: UserRole,
+) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -37,10 +42,11 @@ fun User.toResponseDto(): UserResponseDto {
     )
 }
 
-fun User.toSignInResponseDto(): SignInResponseDto {
+fun User.toSignInResponseDto(token: String): SignInResponseDto {
     return SignInResponseDto(
         id = id!!,
         email = email,
         username = username,
+        token = token,
     )
 }

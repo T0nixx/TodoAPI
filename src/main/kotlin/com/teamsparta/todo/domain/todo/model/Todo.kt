@@ -26,24 +26,23 @@ class Todo(
     @Column(name = "content", nullable = false)
     var content: String,
 
-    @Column(name = "writer", nullable = false, updatable = false)
-    var writer: String,
-
     @CreatedDate
-    @Column(name = "createdAt", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: TodoStatus = TodoStatus.TODO,
+
+    @Column(name = "writer", nullable = false)
+    var writer: String,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    fun update(newTitle: String, newWriter: String, newContent: String) {
+    fun update(newTitle: String, newContent: String) {
         this.title = newTitle
-        this.writer = newWriter
         this.content = newContent
     }
 

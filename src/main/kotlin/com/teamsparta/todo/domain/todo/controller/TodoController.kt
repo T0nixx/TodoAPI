@@ -12,6 +12,8 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -74,13 +76,15 @@ class TodoController(private val todoService: TodoService) {
     @ApiResponse(responseCode = "400")
     @PostMapping
     fun createTodo(
+        @AuthenticationPrincipal
+        user: User,
         @Valid
         @RequestBody
         createTodoRequest: CreateTodoRequestDto,
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(todoService.createTodo(createTodoRequest))
+            .body(todoService.createTodo(user, createTodoRequest))
     }
 
     @Operation(
@@ -90,6 +94,8 @@ class TodoController(private val todoService: TodoService) {
     @ApiResponse(responseCode = "400")
     @PutMapping("/{todoId}")
     fun updateTodo(
+        @AuthenticationPrincipal
+        user: User,
         @PathVariable("todoId")
         id: Long,
         @Valid
@@ -98,7 +104,7 @@ class TodoController(private val todoService: TodoService) {
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(todoService.updateTodo(id, updateTodoRequest))
+            .body(todoService.updateTodo(user, id, updateTodoRequest))
     }
 
     @Operation(
@@ -108,12 +114,14 @@ class TodoController(private val todoService: TodoService) {
     @ApiResponse(responseCode = "400")
     @DeleteMapping("/{todoId}")
     fun deleteTodo(
+        @AuthenticationPrincipal
+        user: User,
         @PathVariable("todoId")
         id: Long,
     ): ResponseEntity<Unit> {
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(todoService.deleteTodo(id))
+            .body(todoService.deleteTodo(user, id))
     }
 
     @Operation(
@@ -122,14 +130,22 @@ class TodoController(private val todoService: TodoService) {
     )
     @ApiResponse(responseCode = "200")
     @ApiResponse(responseCode = "400")
-    @PatchMapping("/{todoId}")
+    @PatchMapping("/{todoId}/status")
     fun updateTodoStatus(
+        @AuthenticationPrincipal
+        user: User,
         @PathVariable("todoId")
         id: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(todoService.updateTodoStatus(id, updateTodoStatusRequest))
+            .body(
+                todoService.updateTodoStatus(
+                    user,
+                    id,
+                    updateTodoStatusRequest,
+                ),
+            )
     }
 }

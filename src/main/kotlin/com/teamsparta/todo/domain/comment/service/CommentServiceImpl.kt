@@ -2,15 +2,15 @@ package com.teamsparta.todo.domain.comment.service
 
 import com.teamsparta.todo.domain.comment.dto.AddCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
-import com.teamsparta.todo.domain.comment.dto.DeleteCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
 import com.teamsparta.todo.domain.comment.model.Comment
 import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
-import com.teamsparta.todo.domain.security.PasswordEncoder
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
+import com.teamsparta.todo.domain.user.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,26 +18,28 @@ import org.springframework.transaction.annotation.Transactional
 class CommentServiceImpl(
     private val todoRepository: TodoRepository,
     private val commentRepository: CommentRepository,
-    private val passwordEncoder: PasswordEncoder,
+    private val userRepository: UserRepository,
 ) : CommentService {
 
     @Transactional
     override fun addComment(
+        user: User,
         todoId: Long,
         addCommentRequest: AddCommentRequestDto,
     ): CommentResponseDto {
         val todo =
             todoRepository.findByIdOrNull(todoId)
                 ?: throw ModelNotFoundException("Todo", todoId)
-        val (writer, password, content) = addCommentRequest
+        if (userRepository.existsByUsername(user.username) == false) throw IllegalStateException(
+            "Username: ${user.username} does not exists",
+        )
 
-        val (hashed, salt) = passwordEncoder.encode(password)
+        val (content) = addCommentRequest
+
         val comment = Comment(
-            writer = writer,
-            password = hashed,
+            writer = user.username,
             todo = todo,
             content = content,
-            salt = salt,
         )
 
         return commentRepository.save(comment).toResponseDto()
@@ -45,6 +47,7 @@ class CommentServiceImpl(
 
     @Transactional
     override fun updateComment(
+        user: User,
         todoId: Long,
         commentId: Long,
         updateCommentRequest: UpdateCommentRequestDto,
@@ -61,26 +64,24 @@ class CommentServiceImpl(
             throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
         }
 
-        val (auth, data) = updateCommentRequest
+        val (content) = updateCommentRequest
 
-        if (auth.writer != comment.writer || passwordEncoder.matches(
-                auth.password,
-                comment.salt,
-                comment.password,
-            ) == false
-        ) throw IllegalArgumentException(
-            "Writer or Password do not match",
+        if (userRepository.existsByUsername(user.username) == false) throw IllegalStateException(
+            "Username: ${user.username} does not exists",
         )
 
-        comment.updateContent(data.content)
+        if (user.username != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
+
+
+        comment.updateContent(content)
         return commentRepository.save(comment).toResponseDto()
     }
 
     @Transactional
     override fun deleteComment(
+        user: User,
         todoId: Long,
         commentId: Long,
-        deleteCommentRequest: DeleteCommentRequestDto,
     ) {
         val todo =
             todoRepository.findByIdOrNull(todoId)
@@ -93,16 +94,11 @@ class CommentServiceImpl(
             throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
         }
 
-        val (auth) = deleteCommentRequest
-
-        if (auth.writer != comment.writer || passwordEncoder.matches(
-                auth.password,
-                comment.salt,
-                comment.password,
-            ) == false
-        ) throw IllegalArgumentException(
-            "Writer or Password do not match.",
+        if (userRepository.existsByUsername(user.username) == false) throw IllegalStateException(
+            "Username: ${user.username} does not exists",
         )
+
+        if (user.username != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
 
         commentRepository.delete(comment)
     }

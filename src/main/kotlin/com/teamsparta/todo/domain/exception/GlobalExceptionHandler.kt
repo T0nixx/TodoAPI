@@ -4,6 +4,7 @@ import com.teamsparta.todo.domain.exception.dto.ErrorResponse
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -41,5 +42,12 @@ class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = e.message))
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse(message = e.cause.toString()))
     }
 }

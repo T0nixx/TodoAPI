@@ -4,5 +4,5 @@ data class SignInResponseDto(
     val id: Long,
     val email: String,
     val username: String,
-    //    val token:
+    val token: String,
 )

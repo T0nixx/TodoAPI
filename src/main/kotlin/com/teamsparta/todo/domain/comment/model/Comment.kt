@@ -28,12 +28,6 @@ class Comment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id", nullable = false)
     val todo: Todo,
-
-    @Column(name = "password", nullable = false)
-    val password: String,
-
-    @Column(name = "salt", nullable = false, updatable = false, unique = true)
-    var salt: String,
 ) {
 
     @Id
@@ -41,15 +35,15 @@ class Comment(
     var id: Long? = null
 
     fun updateContent(newContent: String) {
-        this.content = newContent
+        content = newContent
     }
 }
 
 fun Comment.toResponseDto(): CommentResponseDto {
 
     return CommentResponseDto(
-        id = this.id!!,
-        content = this.content,
-        writer = this.writer,
+        id = id!!,
+        content = content,
+        writer = writer,
     )
 }

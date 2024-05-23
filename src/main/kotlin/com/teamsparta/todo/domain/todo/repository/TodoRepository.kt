@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface TodoRepository : JpaRepository<Todo, Long> {
+    @Query("select t from Todo t where t.writer = :writer")
     fun findAllByWriter(
         writer: String,
         pageable: Pageable,

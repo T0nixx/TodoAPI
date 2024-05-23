@@ -2,12 +2,13 @@ package com.teamsparta.todo.domain.comment.controller
 
 import com.teamsparta.todo.domain.comment.dto.AddCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
-import com.teamsparta.todo.domain.comment.dto.DeleteCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
 import com.teamsparta.todo.domain.comment.service.CommentService
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -23,6 +24,8 @@ class CommentController(private val commentService: CommentService) {
     @Operation(summary = "댓글 생성")
     @PostMapping("/")
     fun addComment(
+        @AuthenticationPrincipal
+        user: User,
         @PathVariable("todoId")
         todoId: Long,
         @RequestBody
@@ -30,12 +33,14 @@ class CommentController(private val commentService: CommentService) {
     ): ResponseEntity<CommentResponseDto> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(commentService.addComment(todoId, addCommentRequest))
+            .body(commentService.addComment(user, todoId, addCommentRequest))
     }
 
     @Operation(summary = "댓글 수정")
     @PutMapping("/{commentId}")
     fun updateComment(
+        @AuthenticationPrincipal
+        user: User,
         @PathVariable
         todoId: Long,
         @PathVariable
@@ -45,6 +50,7 @@ class CommentController(private val commentService: CommentService) {
     ): ResponseEntity<CommentResponseDto> {
         return ResponseEntity.status(HttpStatus.OK).body(
             commentService.updateComment(
+                user,
                 todoId,
                 commentId,
                 updateCommentRequest,
@@ -55,18 +61,18 @@ class CommentController(private val commentService: CommentService) {
     @Operation(summary = "댓글 삭제")
     @DeleteMapping("/{commentId}")
     fun deleteComment(
+        @AuthenticationPrincipal
+        user: User,
         @PathVariable
         todoId: Long,
         @PathVariable
         commentId: Long,
-        @RequestBody
-        deleteCommentRequest: DeleteCommentRequestDto,
     ): ResponseEntity<Unit> {
         return ResponseEntity.status(HttpStatus.OK).body(
             commentService.deleteComment(
+                user,
                 todoId,
                 commentId,
-                deleteCommentRequest,
             ),
         )
     }

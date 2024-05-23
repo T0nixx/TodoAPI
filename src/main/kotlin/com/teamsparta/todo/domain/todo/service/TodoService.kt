@@ -6,6 +6,7 @@ import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
 import org.springframework.data.domain.Sort
+import org.springframework.security.core.userdetails.User
 
 interface TodoService {
     fun getTodoList(
@@ -16,18 +17,23 @@ interface TodoService {
 
     fun getTodoById(todoId: Long): TodoWithCommentsResponseDto
 
-    fun createTodo(createTodoRequest: CreateTodoRequestDto): TodoResponseDto
+    fun createTodo(
+        user: User,
+        createTodoRequest: CreateTodoRequestDto,
+    ): TodoResponseDto
 
     fun updateTodo(
+        user: User,
         todoId: Long,
         updateTodoRequest: UpdateTodoRequestDto,
     ): TodoResponseDto
 
     fun updateTodoStatus(
+        user: User,
         todoId: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
     ): TodoResponseDto
 
-    fun deleteTodo(todoId: Long)
+    fun deleteTodo(user: User, todoId: Long)
 
 }
