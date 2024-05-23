@@ -35,4 +35,11 @@ class GlobalExceptionHandler {
             ),
         )
     }
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalStateException(e: IllegalStateException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(message = e.message))
+    }
 }

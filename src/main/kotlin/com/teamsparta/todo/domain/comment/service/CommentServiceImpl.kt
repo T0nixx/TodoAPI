@@ -13,7 +13,6 @@ import com.teamsparta.todo.domain.todo.repository.TodoRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
 
 @Service
 class CommentServiceImpl(
@@ -32,10 +31,10 @@ class CommentServiceImpl(
                 ?: throw ModelNotFoundException("Todo", todoId)
         val (writer, password, content) = addCommentRequest
 
-        val salt = UUID.randomUUID().toString()
+        val (hashed, salt) = passwordEncoder.encode(password)
         val comment = Comment(
             writer = writer,
-            password = passwordEncoder.encode(password, salt),
+            password = hashed,
             todo = todo,
             content = content,
             salt = salt,
