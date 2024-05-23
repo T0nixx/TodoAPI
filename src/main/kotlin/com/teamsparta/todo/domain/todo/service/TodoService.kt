@@ -5,12 +5,13 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
-import com.teamsparta.todo.domain.todo.model.SortDirection
+import org.springframework.data.domain.Sort
 
 interface TodoService {
     fun getTodoList(
-        sortDirection: SortDirection,
+        sortDirection: Sort.Direction,
         writer: String?,
+        cursor: Long,
     ): List<TodoResponseDto>
 
     fun getTodoById(todoId: Long): TodoWithCommentsResponseDto

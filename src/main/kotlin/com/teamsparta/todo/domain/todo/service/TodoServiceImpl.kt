@@ -8,11 +8,12 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
-import com.teamsparta.todo.domain.todo.model.SortDirection
 import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.model.toResponseDto
 import com.teamsparta.todo.domain.todo.model.toWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,19 +25,43 @@ class TodoServiceImpl(
 ) : TodoService {
 
     override fun getTodoList(
-        sortDirection: SortDirection,
+        sortDirection: Sort.Direction,
         writer: String?,
+        cursor: Long,
     ): List<TodoResponseDto> {
-        val todos =
-            if (writer == null) todoRepository.findAll()
-            else todoRepository.findAllByWriter(writer)
+        val pageable = PageRequest.of(0, 10, sortDirection, "createdAt")
 
-        return if (sortDirection == SortDirection.ASCENDING) {
-            todos.sortedBy { it.createdAt }
+        val todos = when {
+            cursor == 0L -> {
+                if (writer == null) todoRepository.findAll(pageable)
+                else todoRepository.findAllByWriter(writer, pageable)
+            }
+
+            sortDirection == Sort.Direction.DESC -> {
+                if (writer == null) todoRepository.findNextTodoPage(
+                    cursor,
+                    pageable,
+                )
+                else todoRepository.findNextTodoPageByWriter(
+                    cursor,
+                    writer,
+                    pageable,
+                )
+            }
+
+            else -> { // ASC
+                if (writer == null) todoRepository.findPreviousTodoPage(
+                    cursor,
+                    pageable,
+                )
+                else todoRepository.findPreviousTodoPageByWriter(
+                    cursor,
+                    writer,
+                    pageable,
+                )
+            }
         }
-        else {
-            todos.sortedByDescending { it.createdAt }
-        }.map { it.toResponseDto() }
+        return todos.map { it.toResponseDto() }
     }
 
     override fun getTodoById(todoId: Long): TodoWithCommentsResponseDto {

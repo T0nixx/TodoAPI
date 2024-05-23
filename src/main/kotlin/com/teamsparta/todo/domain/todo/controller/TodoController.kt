@@ -5,11 +5,11 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
-import com.teamsparta.todo.domain.todo.model.SortDirection
 import com.teamsparta.todo.domain.todo.service.TodoService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -36,14 +36,17 @@ class TodoController(private val todoService: TodoService) {
     @GetMapping
     fun getTodos(
         @RequestParam
-        sortDirection: SortDirection?,
+        sortDirection: Sort.Direction?,
         @RequestParam
         writer: String?,
+        @RequestParam
+        cursor: Long?,
     ): ResponseEntity<List<TodoResponseDto>> {
         return ResponseEntity.status(HttpStatus.OK).body(
             todoService.getTodoList(
-                sortDirection = sortDirection ?: SortDirection.DESCENDING,
+                sortDirection = sortDirection ?: Sort.Direction.DESC,
                 writer = writer,
+                cursor = cursor ?: 0L,
             ),
         )
     }
