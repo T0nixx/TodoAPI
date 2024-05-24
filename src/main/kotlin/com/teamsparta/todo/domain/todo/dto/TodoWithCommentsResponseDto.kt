@@ -5,7 +5,7 @@ import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 data class TodoWithCommentsResponseDto(
     val id: Long,
     val title: String,
-    val writer: String,
+    val writerId: Long,
     val content: String,
     val createdAt: String,
     val status: String,

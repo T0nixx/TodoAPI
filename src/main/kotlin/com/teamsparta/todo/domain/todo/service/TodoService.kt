@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.User
 interface TodoService {
     fun getTodoList(
         sortDirection: Sort.Direction,
-        writer: String?,
+        writerId: Long?,
         cursor: Long,
     ): List<TodoResponseDto>
 

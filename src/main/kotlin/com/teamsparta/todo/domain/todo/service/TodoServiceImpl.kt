@@ -29,42 +29,42 @@ class TodoServiceImpl(
 
     override fun getTodoList(
         sortDirection: Sort.Direction,
-        writer: String?,
+        writerId: Long?,
         cursor: Long,
     ): List<TodoResponseDto> {
         val pageable = PageRequest.of(0, 10, sortDirection, "createdAt")
 
         val todos = when {
             cursor == 0L -> {
-                if (writer == null) todoRepository.findAll(pageable)
+                if (writerId == null) todoRepository.findAll(pageable)
                 else {
                     todoRepository.findAllByWriter(
-                        writer,
+                        writerId,
                         pageable,
                     )
                 }
             }
 
             sortDirection == Sort.Direction.DESC -> {
-                if (writer == null) todoRepository.findNextTodoPage(
+                if (writerId == null) todoRepository.findNextTodoPage(
                     cursor,
                     pageable,
                 )
                 else todoRepository.findNextTodoPageByWriter(
                     cursor,
-                    writer,
+                    writerId,
                     pageable,
                 )
             }
 
             else -> { // ASC
-                if (writer == null) todoRepository.findPreviousTodoPage(
+                if (writerId == null) todoRepository.findPreviousTodoPage(
                     cursor,
                     pageable,
                 )
                 else todoRepository.findPreviousTodoPageByWriter(
                     cursor,
-                    writer,
+                    writerId,
                     pageable,
                 )
             }
@@ -87,11 +87,13 @@ class TodoServiceImpl(
         createTodoRequest: CreateTodoRequestDto,
     ): TodoResponseDto {
         val (title, content) = createTodoRequest
-        val writer = user.username
+        val writerId = user.username.toLong()
 
-        if (userRepository.existsByUsername(writer) == false) throw IllegalArgumentException(
-            "Username: $writer does not exist.",
-        )
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalArgumentException(
+                    "Username: $writerId does not exist.",
+                )
         val todo =
             Todo(title = title, writer = writer, content = content)
         return todoRepository.save(todo).toResponseDto()
@@ -106,8 +108,15 @@ class TodoServiceImpl(
         val todo =
             todoRepository.findByIdOrNull(todoId)
                 ?: throw ModelNotFoundException("Todo", todoId)
-        if (todo.writer != user.username) throw IllegalStateException(
-            "Username: ${user.username} is not the writer of todo (id: ${todoId}).",
+
+        val writerId = user.username.toLong()
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalArgumentException(
+                    "Username: $writerId does not exist.",
+                )
+        if (todo.writer != writer) throw IllegalStateException(
+            "User: ${user.username} is not the writer of todo (id: ${todoId}).",
         )
 
         val (title, content) = updateTodoRequest
@@ -126,8 +135,14 @@ class TodoServiceImpl(
             todoRepository.findByIdOrNull(todoId)
                 ?: throw ModelNotFoundException("Todo", todoId)
 
-        if (todo.writer != user.username) throw IllegalStateException(
-            "Username: ${user.username} is not the writer of the todo: ${todoId}.",
+        val writerId = user.username.toLong()
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalArgumentException(
+                    "User: $writerId does not exist.",
+                )
+        if (todo.writer != writer) throw IllegalStateException(
+            "User: ${user.username} is not the writer of the todo: ${todoId}.",
         )
 
         val (status) = updateTodoStatusRequest
@@ -142,8 +157,15 @@ class TodoServiceImpl(
         val todo =
             todoRepository.findByIdOrNull(todoId)
                 ?: throw ModelNotFoundException("Todo", todoId)
-        if (todo.writer != user.username) throw IllegalStateException(
-            "Username: ${user.username} is not the writer of the todo: ${todoId}.",
+
+        val writerId = user.username.toLong()
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalArgumentException(
+                    "User: $writerId does not exist.",
+                )
+        if (todo.writer != writer) throw IllegalStateException(
+            "User: ${user.username} is not the writer of the todo: ${todoId}.",
         )
 
         val comments = commentRepository.findAllByTodoId(todoId)

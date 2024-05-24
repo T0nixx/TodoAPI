@@ -40,14 +40,14 @@ class TodoController(private val todoService: TodoService) {
         @RequestParam
         sortDirection: Sort.Direction?,
         @RequestParam
-        writer: String?,
+        writerId: Long?,
         @RequestParam
         cursor: Long?,
     ): ResponseEntity<List<TodoResponseDto>> {
         return ResponseEntity.status(HttpStatus.OK).body(
             todoService.getTodoList(
                 sortDirection = sortDirection ?: Sort.Direction.DESC,
-                writer = writer,
+                writerId = writerId,
                 cursor = cursor ?: 0L,
             ),
         )

@@ -6,23 +6,23 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface TodoRepository : JpaRepository<Todo, Long> {
-    @Query("select t from Todo t where t.writer = :writer")
+    @Query("select t from Todo t where t.writer.id = :writerId")
     fun findAllByWriter(
-        writer: String,
+        writerId: Long,
         pageable: Pageable,
     ): List<Todo>
 
-    @Query("select t from Todo t where t.id < :lastTodoId and t.writer = :writer order by t.createdAt desc")
+    @Query("select t from Todo t where t.id < :lastTodoId and t.writer.id = :writerId order by t.createdAt desc")
     fun findNextTodoPageByWriter(
         lastTodoId: Long,
-        writer: String,
+        writerId: Long,
         pageable: Pageable,
     ): List<Todo>
 
-    @Query("select t from Todo t where t.id > :lastTodoId and t.writer = :writer order by t.createdAt asc")
+    @Query("select t from Todo t where t.id > :lastTodoId and t.writer.id = :writerId order by t.createdAt asc")
     fun findPreviousTodoPageByWriter(
         lastTodoId: Long,
-        writer: String,
+        writerId: Long,
         pageable: Pageable,
     ): List<Todo>
 

@@ -2,6 +2,7 @@ package com.teamsparta.todo.domain.comment.model
 
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.todo.model.Todo
+import com.teamsparta.todo.domain.user.model.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
@@ -19,8 +20,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 @Table(name = "comment")
 class Comment(
 
-    @Column(name = "writer", nullable = false)
-    var writer: String,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id", nullable = false)
+    var writer: User,
 
     @Column(name = "content", nullable = false)
     var content: String,
@@ -40,10 +42,9 @@ class Comment(
 }
 
 fun Comment.toResponseDto(): CommentResponseDto {
-
     return CommentResponseDto(
         id = id!!,
         content = content,
-        writer = writer,
+        writerId = writer.id!!,
     )
 }

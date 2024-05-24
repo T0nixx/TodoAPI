@@ -30,14 +30,18 @@ class CommentServiceImpl(
         val todo =
             todoRepository.findByIdOrNull(todoId)
                 ?: throw ModelNotFoundException("Todo", todoId)
-        if (userRepository.existsByUsername(user.username) == false) throw IllegalStateException(
-            "Username: ${user.username} does not exists",
-        )
+
+        val writerId = user.username.toLong()
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalStateException(
+                    "User: ${user.username} does not exists",
+                )
 
         val (content) = addCommentRequest
 
         val comment = Comment(
-            writer = user.username,
+            writer = writer,
             todo = todo,
             content = content,
         )
@@ -64,14 +68,16 @@ class CommentServiceImpl(
             throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
         }
 
+        val writerId = user.username.toLong()
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalStateException(
+                    "User: ${user.username} does not exists",
+                )
+
+        if (writer != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
+
         val (content) = updateCommentRequest
-
-        if (userRepository.existsByUsername(user.username) == false) throw IllegalStateException(
-            "Username: ${user.username} does not exists",
-        )
-
-        if (user.username != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
-
 
         comment.updateContent(content)
         return commentRepository.save(comment).toResponseDto()
@@ -94,11 +100,14 @@ class CommentServiceImpl(
             throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
         }
 
-        if (userRepository.existsByUsername(user.username) == false) throw IllegalStateException(
-            "Username: ${user.username} does not exists",
-        )
+        val writerId = user.username.toLong()
+        val writer =
+            userRepository.findByIdOrNull(writerId)
+                ?: throw IllegalStateException(
+                    "User: ${user.username} does not exists",
+                )
 
-        if (user.username != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
+        if (writer != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
 
         commentRepository.delete(comment)
     }

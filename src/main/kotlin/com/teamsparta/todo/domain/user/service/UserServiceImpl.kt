@@ -58,7 +58,7 @@ class UserServiceImpl(
             throw IllegalStateException("Email or password is incorrect")
         }
         val token =
-            jwtProvider.createToken("${user.username}:${user.password}:${user.role}}")
+            jwtProvider.createToken("${user.id}:${user.password}:${user.role}}")
         return user.toSignInResponseDto(token)
     }
 }
