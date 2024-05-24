@@ -14,16 +14,16 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "app_user")
 class User(
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     val email: String,
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     val username: String,
 
     @Column(name = "password", nullable = false)
     val password: String,
 
-    @Column(name = "salt", nullable = false, updatable = false)
+    @Column(name = "salt", nullable = false, updatable = false, unique = true)
     val salt: String,
 
     @Enumerated(EnumType.STRING)
