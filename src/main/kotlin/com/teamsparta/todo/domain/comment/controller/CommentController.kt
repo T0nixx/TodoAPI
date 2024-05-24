@@ -5,6 +5,7 @@ import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
 import com.teamsparta.todo.domain.comment.service.CommentService
 import io.swagger.v3.oas.annotations.Operation
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -28,6 +29,7 @@ class CommentController(private val commentService: CommentService) {
         user: User,
         @PathVariable("todoId")
         todoId: Long,
+        @Valid
         @RequestBody
         addCommentRequest: AddCommentRequestDto,
     ): ResponseEntity<CommentResponseDto> {
@@ -45,6 +47,7 @@ class CommentController(private val commentService: CommentService) {
         todoId: Long,
         @PathVariable
         commentId: Long,
+        @Valid
         @RequestBody
         updateCommentRequest: UpdateCommentRequestDto,
     ): ResponseEntity<CommentResponseDto> {
