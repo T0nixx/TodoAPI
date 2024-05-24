@@ -86,7 +86,7 @@ class TodoServiceImpl(
     ): TodoResponseDto {
         val (title, content) = createTodoRequest
         val writerId = user.username.toLong()
-        val writer = getWriterOrThrow(writerId)
+        val writer = getAppUserOrThrow(writerId)
         val todo =
             Todo(title = title, writer = writer, content = content)
         return todoRepository.save(todo).toResponseDto()
@@ -100,7 +100,7 @@ class TodoServiceImpl(
     ): TodoResponseDto {
         val todo = getTodoOrThrow(todoId)
 
-        validateWriter(user, todo)
+        assertUserIsTodoWriter(user, todo)
 
         val (title, content) = updateTodoRequest
         todo.update(title, content)
@@ -116,7 +116,7 @@ class TodoServiceImpl(
     ): TodoResponseDto {
         val todo = getTodoOrThrow(todoId)
 
-        validateWriter(user, todo)
+        assertUserIsTodoWriter(user, todo)
 
         val (status) = updateTodoStatusRequest
 
@@ -128,16 +128,16 @@ class TodoServiceImpl(
     @Transactional
     override fun deleteTodo(user: User, todoId: Long) {
         val todo = getTodoOrThrow(todoId)
-        validateWriter(user, todo)
+        assertUserIsTodoWriter(user, todo)
         val comments = commentRepository.findAllByTodoId(todoId)
         comments.forEach { commentRepository.delete(it) }
         todoRepository.delete(todo)
     }
 
-    private fun validateWriter(user: User, todo: Todo) {
-        val writerId = user.username.toLong()
-        val writer = getWriterOrThrow(writerId)
-        if (todo.writer != writer) throw IllegalStateException(
+    private fun assertUserIsTodoWriter(user: User, todo: Todo) {
+        val appUserId = user.username.toLong()
+        val appUser = getAppUserOrThrow(appUserId)
+        if (todo.writer != appUser) throw IllegalStateException(
             "User: ${user.username} is not the writer of the todo: ${todo.id}.",
         )
     }
@@ -147,10 +147,10 @@ class TodoServiceImpl(
             ?: throw ModelNotFoundException("Todo", todoId)
     }
 
-    private fun getWriterOrThrow(writerId: Long) =
-        userRepository.findByIdOrNull(writerId)
+    private fun getAppUserOrThrow(appUserId: Long) =
+        userRepository.findByIdOrNull(appUserId)
             ?: throw IllegalStateException(
-                "User: $writerId does not exists",
+                "User: $appUserId does not exists",
             )
 }
 

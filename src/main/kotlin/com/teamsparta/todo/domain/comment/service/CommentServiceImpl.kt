@@ -55,9 +55,8 @@ class CommentServiceImpl(
 
         val comment = getCommentOrThrow(commentId)
 
-        validateCommentBelongsToTodo(todo, comment)
-
-        validateWriter(user, comment)
+        assertCommentBelongsToTodo(comment, todo)
+        assertUserIsCommentWriter(user, comment)
         val (content) = updateCommentRequest
 
         comment.updateContent(content)
@@ -73,24 +72,23 @@ class CommentServiceImpl(
         val todo = getTodoOrThrow(todoId)
         val comment = getCommentOrThrow(commentId)
 
-        validateCommentBelongsToTodo(todo, comment)
-        validateWriter(user, comment)
-
+        assertCommentBelongsToTodo(comment, todo)
+        assertUserIsCommentWriter(user, comment)
 
         commentRepository.delete(comment)
     }
 
-    private fun validateCommentBelongsToTodo(todo: Todo, comment: Comment) {
+    private fun assertCommentBelongsToTodo(comment: Comment, todo: Todo) {
         if (comment.todo.id != todo.id) {
             throw IllegalArgumentException("This Comment (id: $comment.id) does not belong to Todo (id: $todo.id).")
         }
     }
 
-    private fun validateWriter(user: User, comment: Comment) {
-        val writerId = user.username.toLong()
-        val writer = getWriterOrThrow(writerId)
+    private fun assertUserIsCommentWriter(user: User, comment: Comment) {
+        val appUserId = user.username.toLong()
+        val appUser = getWriterOrThrow(appUserId)
 
-        if (writer != comment.writer) throw IllegalStateException("User: $writerId is not writer of comment (id: $comment.id).")
+        if (appUser != comment.writer) throw IllegalStateException("User: $appUserId is not writer of comment (id: $comment.id).")
     }
 
     private fun getTodoOrThrow(todoId: Long): Todo {
