@@ -13,7 +13,6 @@ import com.teamsparta.todo.domain.todo.model.toResponseDto
 import com.teamsparta.todo.domain.todo.model.toWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
 import com.teamsparta.todo.domain.user.repository.UserRepository
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.User
@@ -32,42 +31,24 @@ class TodoServiceImpl(
         writerId: Long?,
         cursor: Long,
     ): List<TodoResponseDto> {
-        val pageable = PageRequest.of(0, 10, sortDirection, "createdAt")
-
         val todos = when {
             cursor == 0L -> {
-                if (writerId == null) todoRepository.findAll(pageable)
+                if (writerId == null) todoRepository.findPage(
+                    sortDirection,
+                )
                 else {
-                    todoRepository.findAllByWriter(
-                        writerId,
-                        pageable,
+                    todoRepository.findPageByWriterId(
+                        writerId = writerId,
+                        sortDirection = sortDirection,
                     )
                 }
             }
 
-            sortDirection == Sort.Direction.DESC -> {
-                if (writerId == null) todoRepository.findNextTodoPage(
-                    cursor,
-                    pageable,
-                )
-                else todoRepository.findNextTodoPageByWriter(
-                    cursor,
-                    writerId,
-                    pageable,
-                )
-            }
-
-            else -> { // ASC
-                if (writerId == null) todoRepository.findPreviousTodoPage(
-                    cursor,
-                    pageable,
-                )
-                else todoRepository.findPreviousTodoPageByWriter(
-                    cursor,
-                    writerId,
-                    pageable,
-                )
-            }
+            else -> todoRepository.findPageFromCursor(
+                cursor = cursor,
+                writerId = writerId,
+                sortDirection = sortDirection,
+            )
         }
         return todos.map { it.toResponseDto() }
     }
