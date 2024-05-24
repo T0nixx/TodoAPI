@@ -31,4 +31,4 @@ http://localhost:8080/swagger-ui/index.html#
 - Spring Boot: 3.2.5
 - IDE: IntelliJ IDEA 2024.1
 - jjwt: 0.12.5
-- DB: postgres
+- DB: postgresql
