@@ -73,9 +73,7 @@ class TodoServiceImpl(
     }
 
     override fun getTodoById(todoId: Long): TodoWithCommentsResponseDto {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
+        val todo = getTodoOrThrow(todoId)
         val comments = commentRepository.findAllByTodoId(todoId)
         val commentResponses = comments.map { it.toResponseDto() }
         return todo.toWithCommentsResponseDto(commentResponses)
@@ -88,12 +86,7 @@ class TodoServiceImpl(
     ): TodoResponseDto {
         val (title, content) = createTodoRequest
         val writerId = user.username.toLong()
-
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalArgumentException(
-                    "Username: $writerId does not exist.",
-                )
+        val writer = getWriterOrThrow(writerId)
         val todo =
             Todo(title = title, writer = writer, content = content)
         return todoRepository.save(todo).toResponseDto()
@@ -105,19 +98,9 @@ class TodoServiceImpl(
         todoId: Long,
         updateTodoRequest: UpdateTodoRequestDto,
     ): TodoResponseDto {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
+        val todo = getTodoOrThrow(todoId)
 
-        val writerId = user.username.toLong()
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalArgumentException(
-                    "Username: $writerId does not exist.",
-                )
-        if (todo.writer != writer) throw IllegalStateException(
-            "User: ${user.username} is not the writer of todo (id: ${todoId}).",
-        )
+        validateWriter(user, todo)
 
         val (title, content) = updateTodoRequest
         todo.update(title, content)
@@ -131,19 +114,9 @@ class TodoServiceImpl(
         todoId: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
     ): TodoResponseDto {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
+        val todo = getTodoOrThrow(todoId)
 
-        val writerId = user.username.toLong()
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalArgumentException(
-                    "User: $writerId does not exist.",
-                )
-        if (todo.writer != writer) throw IllegalStateException(
-            "User: ${user.username} is not the writer of the todo: ${todoId}.",
-        )
+        validateWriter(user, todo)
 
         val (status) = updateTodoStatusRequest
 
@@ -154,22 +127,30 @@ class TodoServiceImpl(
 
     @Transactional
     override fun deleteTodo(user: User, todoId: Long) {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
-
-        val writerId = user.username.toLong()
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalArgumentException(
-                    "User: $writerId does not exist.",
-                )
-        if (todo.writer != writer) throw IllegalStateException(
-            "User: ${user.username} is not the writer of the todo: ${todoId}.",
-        )
-
+        val todo = getTodoOrThrow(todoId)
+        validateWriter(user, todo)
         val comments = commentRepository.findAllByTodoId(todoId)
         comments.forEach { commentRepository.delete(it) }
         todoRepository.delete(todo)
     }
+
+    private fun validateWriter(user: User, todo: Todo) {
+        val writerId = user.username.toLong()
+        val writer = getWriterOrThrow(writerId)
+        if (todo.writer != writer) throw IllegalStateException(
+            "User: ${user.username} is not the writer of the todo: ${todo.id}.",
+        )
+    }
+
+    private fun getTodoOrThrow(todoId: Long): Todo {
+        return todoRepository.findByIdOrNull(todoId)
+            ?: throw ModelNotFoundException("Todo", todoId)
+    }
+
+    private fun getWriterOrThrow(writerId: Long) =
+        userRepository.findByIdOrNull(writerId)
+            ?: throw IllegalStateException(
+                "User: $writerId does not exists",
+            )
 }
+

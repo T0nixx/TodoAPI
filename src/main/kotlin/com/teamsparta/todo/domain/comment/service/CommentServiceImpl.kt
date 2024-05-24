@@ -7,6 +7,7 @@ import com.teamsparta.todo.domain.comment.model.Comment
 import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
+import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
 import com.teamsparta.todo.domain.user.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -27,16 +28,10 @@ class CommentServiceImpl(
         todoId: Long,
         addCommentRequest: AddCommentRequestDto,
     ): CommentResponseDto {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
+        val todo = getTodoOrThrow(todoId)
 
         val writerId = user.username.toLong()
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalStateException(
-                    "User: ${user.username} does not exists",
-                )
+        val writer = getWriterOrThrow(writerId)
 
         val (content) = addCommentRequest
 
@@ -56,27 +51,13 @@ class CommentServiceImpl(
         commentId: Long,
         updateCommentRequest: UpdateCommentRequestDto,
     ): CommentResponseDto {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
+        val todo = getTodoOrThrow(todoId)
 
-        val comment =
-            commentRepository.findByIdOrNull(commentId)
-                ?: throw ModelNotFoundException("Comment", commentId)
+        val comment = getCommentOrThrow(commentId)
 
-        if (comment.todo.id != todo.id) {
-            throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
-        }
+        validateCommentBelongsToTodo(todo, comment)
 
-        val writerId = user.username.toLong()
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalStateException(
-                    "User: ${user.username} does not exists",
-                )
-
-        if (writer != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
-
+        validateWriter(user, comment)
         val (content) = updateCommentRequest
 
         comment.updateContent(content)
@@ -89,26 +70,43 @@ class CommentServiceImpl(
         todoId: Long,
         commentId: Long,
     ) {
-        val todo =
-            todoRepository.findByIdOrNull(todoId)
-                ?: throw ModelNotFoundException("Todo", todoId)
-        val comment =
-            commentRepository.findByIdOrNull(commentId)
-                ?: throw ModelNotFoundException("Comment", commentId)
+        val todo = getTodoOrThrow(todoId)
+        val comment = getCommentOrThrow(commentId)
 
-        if (comment.todo.id != todo.id) {
-            throw IllegalArgumentException("This Comment (id: $commentId) does not belong to Todo (id: $todoId).")
-        }
+        validateCommentBelongsToTodo(todo, comment)
+        validateWriter(user, comment)
 
-        val writerId = user.username.toLong()
-        val writer =
-            userRepository.findByIdOrNull(writerId)
-                ?: throw IllegalStateException(
-                    "User: ${user.username} does not exists",
-                )
-
-        if (writer != comment.writer) throw IllegalStateException("User: ${user.username} is not writer of comment (id: $commentId).")
 
         commentRepository.delete(comment)
     }
+
+    private fun validateCommentBelongsToTodo(todo: Todo, comment: Comment) {
+        if (comment.todo.id != todo.id) {
+            throw IllegalArgumentException("This Comment (id: $comment.id) does not belong to Todo (id: $todo.id).")
+        }
+    }
+
+    private fun validateWriter(user: User, comment: Comment) {
+        val writerId = user.username.toLong()
+        val writer = getWriterOrThrow(writerId)
+
+        if (writer != comment.writer) throw IllegalStateException("User: $writerId is not writer of comment (id: $comment.id).")
+    }
+
+    private fun getTodoOrThrow(todoId: Long): Todo {
+        return todoRepository.findByIdOrNull(todoId)
+            ?: throw ModelNotFoundException("Todo", todoId)
+    }
+
+    private fun getCommentOrThrow(commentId: Long): Comment {
+        return commentRepository.findByIdOrNull(commentId)
+            ?: throw ModelNotFoundException("Comment", commentId)
+    }
+
+    private fun getWriterOrThrow(writerId: Long) =
+        userRepository.findByIdOrNull(writerId)
+            ?: throw IllegalStateException(
+                "User: $writerId does not exists",
+            )
+
 }
