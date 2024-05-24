@@ -4,10 +4,11 @@
 
 간단한 Todo API입니다.
 
-- signUp api를 통해 회원 가입 후, signIn api를 통해 토큰을 발급받습니다. authorization header에 해당
+- sign-up api를 통해 회원 가입 후, sign-in api를 통해 토큰을 발급받습니다. authorization header에 해당
   토큰을 명시하여 다른 api들을 사용할 수 있습니다.
-- Todo 생성, 수정, 삭제, 전체 목록 조회, 특정 Todo 조회, 상태 변경
-- Comment 생성, 수정, 삭제
+- 지원하는 기능
+    - Todo 생성, 수정, 삭제, 전체 목록 조회, 특정 Todo 조회, 상태 변경
+    - Comment 생성, 수정, 삭제
 
 ## Use-Case Diagram
 
