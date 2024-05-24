@@ -43,7 +43,6 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
 
     override fun findPageFromCursor(
         cursor: Long,
-        writerId: Long?,
         sortDirection: Direction,
     ): List<Todo> {
         val todo = QTodo.todo
@@ -51,17 +50,29 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
         val gtOrLtId =
             if (isDescending == true) todo.id.lt(cursor) else todo.id.gt(cursor)
 
-        return if (writerId != null) queryFactory
-            .selectFrom(todo)
-            .leftJoin(todo.writer, QUser.user).fetchJoin()
-            .where(gtOrLtId.and(todo.writer.id.eq(writerId)))
-            .orderBy(getOrderSpecifier(sortDirection))
-            .limit(PAGE_SIZE)
-            .fetch()
-        else queryFactory
+        return queryFactory
             .selectFrom(todo)
             .leftJoin(todo.writer, QUser.user).fetchJoin()
             .where(gtOrLtId)
+            .orderBy(getOrderSpecifier(sortDirection))
+            .limit(PAGE_SIZE)
+            .fetch()
+    }
+
+    override fun findPageFromCursorByWriterId(
+        cursor: Long,
+        writerId: Long,
+        sortDirection: Direction,
+    ): List<Todo> {
+        val todo = QTodo.todo
+        val isDescending = sortDirection == Direction.DESC
+        val gtOrLtId =
+            if (isDescending == true) todo.id.lt(cursor) else todo.id.gt(cursor)
+
+        return queryFactory
+            .selectFrom(todo)
+            .leftJoin(todo.writer, QUser.user).fetchJoin()
+            .where(gtOrLtId.and(todo.writer.id.eq(writerId)))
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
             .fetch()

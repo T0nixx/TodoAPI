@@ -44,11 +44,17 @@ class TodoServiceImpl(
                 }
             }
 
-            else -> todoRepository.findPageFromCursor(
-                cursor = cursor,
-                writerId = writerId,
-                sortDirection = sortDirection,
-            )
+            else -> {
+                if (writerId == null) todoRepository.findPageFromCursor(
+                    cursor = cursor,
+                    sortDirection = sortDirection,
+                )
+                else todoRepository.findPageFromCursorByWriterId(
+                    cursor = cursor,
+                    writerId = writerId,
+                    sortDirection = sortDirection,
+                )
+            }
         }
         return todos.map { it.toResponseDto() }
     }

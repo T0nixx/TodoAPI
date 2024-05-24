@@ -12,7 +12,12 @@ interface CustomTodoRepository {
 
     fun findPageFromCursor(
         cursor: Long,
-        writerId: Long?,
+        sortDirection: Direction,
+    ): List<Todo>
+
+    fun findPageFromCursorByWriterId(
+        cursor: Long,
+        writerId: Long,
         sortDirection: Direction,
     ): List<Todo>
 }
