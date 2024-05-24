@@ -86,7 +86,7 @@ class TodoServiceImpl(
         val (title, content) = updateTodoRequest
         todo.update(title, content)
 
-        return todoRepository.save(todo).toResponseDto()
+        return todo.toResponseDto()
     }
 
     @Transactional
@@ -103,7 +103,7 @@ class TodoServiceImpl(
 
         todo.updateStatus(status)
 
-        return todoRepository.save(todo).toResponseDto()
+        return todo.toResponseDto()
     }
 
     @Transactional

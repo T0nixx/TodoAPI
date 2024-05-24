@@ -60,7 +60,7 @@ class CommentServiceImpl(
         val (content) = updateCommentRequest
 
         comment.updateContent(content)
-        return commentRepository.save(comment).toResponseDto()
+        return comment.toResponseDto()
     }
 
     @Transactional
