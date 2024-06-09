@@ -1,8 +1,10 @@
 package com.teamsparta.todo.domain.todo.repository
 
+import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.teamsparta.todo.domain.member.model.QMember
+import com.teamsparta.todo.domain.socialmember.model.QSocialMember
 import com.teamsparta.todo.domain.todo.model.QTodo
 import com.teamsparta.todo.domain.todo.model.Todo
 import org.springframework.data.domain.Sort.Direction
@@ -22,7 +24,7 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     override fun findPage(sortDirection: Direction): List<Todo> {
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QMember.member)
+            .leftJoin(todo.member, QMember.member)
             .fetchJoin()
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
@@ -30,14 +32,15 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     }
 
     override fun findPageByWriterId(
-        writerId: Long,
+        memberId: Long?,
+        socialMemberId: Long?,
         sortDirection: Direction,
     ): List<Todo> {
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QMember.member)
+            .leftJoin(todo.member, QMember.member)
             .fetchJoin()
-            .where(todo.writer.id.eq(writerId))
+            .where(todo.member.id.eq(memberId))
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
             .fetch()
@@ -54,7 +57,7 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
 
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QMember.member)
+            .leftJoin(todo.member, QMember.member)
             .fetchJoin()
             .where(gtOrLtId)
             .orderBy(getOrderSpecifier(sortDirection))
@@ -63,19 +66,31 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     }
 
     override fun findPageFromCursorByWriterId(
-        cursor: Long,
-        writerId: Long,
+        cursor: Long?,
+        memberId: Long?,
+        socialMemberId: Long?,
         sortDirection: Direction,
     ): List<Todo> {
         val todo = QTodo.todo
         val isDescending = sortDirection == Direction.DESC
-        val gtOrLtId =
-            if (isDescending == true) todo.id.lt(cursor) else todo.id.gt(cursor)
+
+        val builder = BooleanBuilder()
+        cursor?.let {
+            builder.and(
+                if (isDescending == true) todo.id.lt(cursor)
+                else todo.id.gt(
+                    cursor,
+                ),
+            )
+        }
+        memberId?.let { builder.and(todo.member.id.eq(it)) }
+        socialMemberId?.let { builder.and(todo.socialMember.id.eq(it)) }
 
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QMember.member).fetchJoin()
-            .where(gtOrLtId.and(todo.writer.id.eq(writerId)))
+            .leftJoin(todo.member, QMember.member)
+            .leftJoin(todo.socialMember, QSocialMember.socialMember)
+            .where(builder)
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
             .fetch()

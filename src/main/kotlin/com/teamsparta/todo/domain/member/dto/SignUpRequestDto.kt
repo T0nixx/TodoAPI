@@ -9,5 +9,5 @@ data class SignUpRequestDto(
     @field:NotBlank
     val password: String,
     @field:NotBlank
-    val username: String,
+    val nickname: String,
 )

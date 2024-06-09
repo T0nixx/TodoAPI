@@ -1,4 +1,4 @@
-package com.teamsparta.todo.domain.security.dto
+package com.teamsparta.todo.infra.security.dto
 
 data class JwtTokenDto(
     val grantType: String,

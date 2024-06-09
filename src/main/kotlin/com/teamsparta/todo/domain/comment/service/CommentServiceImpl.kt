@@ -8,10 +8,11 @@ import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
 import com.teamsparta.todo.domain.member.repository.MemberRepository
+import com.teamsparta.todo.domain.socialmember.repository.SocialMemberRepository
 import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
+import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,33 +21,44 @@ class CommentServiceImpl(
     private val todoRepository: TodoRepository,
     private val commentRepository: CommentRepository,
     private val memberRepository: MemberRepository,
+    private val socialMemberRepository: SocialMemberRepository,
 ) : CommentService {
 
     @Transactional
     override fun addComment(
-        user: User,
+        principal: MemberPrincipal,
         todoId: Long,
         addCommentRequest: AddCommentRequestDto,
     ): CommentResponseDto {
         val todo = getTodoOrThrow(todoId)
 
-        val writerId = user.username.toLong()
-        val writer = getWriterOrThrow(writerId)
-
+        val (id, oAuth2Provider, _) = principal
         val (content) = addCommentRequest
-
-        val comment = Comment(
-            writer = writer,
-            todo = todo,
-            content = content,
-        )
-
-        return commentRepository.save(comment).toResponseDto()
+        return if (oAuth2Provider == null) {
+            memberRepository.findByIdOrNull(id)?.let {
+                Comment(
+                    member = it,
+                    todo = todo,
+                    content = content,
+                    socialMember = null,
+                )
+            } ?: throw ModelNotFoundException("Member", id)
+        }
+        else {
+            socialMemberRepository.findByIdOrNull(id)?.let {
+                Comment(
+                    member = null,
+                    todo = todo,
+                    content = content,
+                    socialMember = it,
+                )
+            } ?: throw ModelNotFoundException("SocialMember", id)
+        }.let { commentRepository.save(it).toResponseDto() }
     }
 
     @Transactional
     override fun updateComment(
-        user: User,
+        principal: MemberPrincipal,
         todoId: Long,
         commentId: Long,
         updateCommentRequest: UpdateCommentRequestDto,
@@ -56,7 +68,7 @@ class CommentServiceImpl(
         val comment = getCommentOrThrow(commentId)
 
         assertCommentBelongsToTodo(comment, todo)
-        assertUserIsCommentWriter(user, comment)
+        assertUserIsCommentWriter(principal, comment)
         val (content) = updateCommentRequest
 
         comment.updateContent(content)
@@ -65,7 +77,7 @@ class CommentServiceImpl(
 
     @Transactional
     override fun deleteComment(
-        user: User,
+        principal: MemberPrincipal,
         todoId: Long,
         commentId: Long,
     ) {
@@ -73,7 +85,7 @@ class CommentServiceImpl(
         val comment = getCommentOrThrow(commentId)
 
         assertCommentBelongsToTodo(comment, todo)
-        assertUserIsCommentWriter(user, comment)
+        assertUserIsCommentWriter(principal, comment)
 
         commentRepository.delete(comment)
     }
@@ -84,11 +96,17 @@ class CommentServiceImpl(
         }
     }
 
-    private fun assertUserIsCommentWriter(user: User, comment: Comment) {
-        val appUserId = user.username.toLong()
-        val appUser = getWriterOrThrow(appUserId)
-
-        if (appUser != comment.writer) throw IllegalStateException("User: $appUserId is not writer of comment (id: $comment.id).")
+    private fun assertUserIsCommentWriter(
+        principal: MemberPrincipal,
+        comment: Comment,
+    ) {
+        val (id, oAuth2Provider, _) = principal
+        if (oAuth2Provider == null) {
+            if (id != comment.member!!.id!!) throw IllegalStateException("Member $id is not the writer of Comment ${comment.id}.")
+        }
+        else {
+            if (id != comment.socialMember!!.id!!) throw IllegalStateException("SocialMember $id is not the writer of Comment ${comment.id}.")
+        }
     }
 
     private fun getTodoOrThrow(todoId: Long): Todo {
@@ -100,11 +118,4 @@ class CommentServiceImpl(
         return commentRepository.findByIdOrNull(commentId)
             ?: throw ModelNotFoundException("Comment", commentId)
     }
-
-    private fun getWriterOrThrow(writerId: Long) =
-        memberRepository.findByIdOrNull(writerId)
-            ?: throw IllegalStateException(
-                "User: $writerId does not exists",
-            )
-
 }

@@ -9,8 +9,8 @@ import com.teamsparta.todo.domain.member.model.MemberRole
 import com.teamsparta.todo.domain.member.model.toResponseDto
 import com.teamsparta.todo.domain.member.model.toSignInResponseDto
 import com.teamsparta.todo.domain.member.repository.MemberRepository
-import com.teamsparta.todo.domain.security.JwtProvider
-import com.teamsparta.todo.domain.security.PasswordEncoder
+import com.teamsparta.todo.infra.security.jwt.JwtProvider
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,19 +25,16 @@ class MemberServiceImpl(
     override fun signUp(
         signUpRequestDto: SignUpRequestDto,
     ): MemberResponseDto {
-        val (email, password, username) = signUpRequestDto
-        if (memberRepository.existsByEmailOrUsername(email, username)) {
-            throw IllegalStateException("Email: $email or Username: $username already exists")
+        val (email, password, nickname) = signUpRequestDto
+        if (memberRepository.existsByEmail(email)) {
+            throw IllegalStateException("Email: $email already exists")
         }
-        val (hashed, salt) = passwordEncoder.encode(password)
-
 
         return memberRepository.save(
             Member(
                 email = email,
-                password = hashed,
-                username = username,
-                salt = salt,
+                password = passwordEncoder.encode(password),
+                nickname = nickname,
                 role = MemberRole.USER,
             ),
         ).toResponseDto()
@@ -48,19 +45,14 @@ class MemberServiceImpl(
         signInRequestDto: SignInRequestDto,
     ): SignInResponseDto {
         val (email, password) = signInRequestDto
-        val user =
+        val member =
             memberRepository.findByEmail(email)
                 ?: throw IllegalStateException("Email or password is incorrect")
-        if (passwordEncoder.matches(
-                target = password,
-                salt = user.salt,
-                hashed = user.password,
-            ) == false
-        ) {
+        if (passwordEncoder.matches(password, member.password) == false) {
             throw IllegalStateException("Email or password is incorrect")
         }
         val token =
-            jwtProvider.createToken("${user.id}:${user.password}:${user.role}}")
-        return user.toSignInResponseDto(token)
+            jwtProvider.createToken(member.id!!, member.role, null)
+        return member.toSignInResponseDto(token)
     }
 }

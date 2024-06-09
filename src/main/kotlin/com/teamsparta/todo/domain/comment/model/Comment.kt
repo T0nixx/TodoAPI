@@ -2,10 +2,10 @@ package com.teamsparta.todo.domain.comment.model
 
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.member.model.Member
+import com.teamsparta.todo.domain.socialmember.model.SocialMember
 import com.teamsparta.todo.domain.todo.model.Todo
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -13,16 +13,18 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
-@EntityListeners(AuditingEntityListener::class)
 @Table(name = "comment")
 class Comment(
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_id", nullable = false)
-    var writer: Member,
+    @JoinColumn(name = "member_id")
+    var member: Member?,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "social_member_id")
+    var socialMember: SocialMember?,
 
     @Column(name = "content", nullable = false)
     var content: String,
@@ -31,6 +33,11 @@ class Comment(
     @JoinColumn(name = "todo_id", nullable = false)
     val todo: Todo,
 ) {
+    init {
+        require((member != null && socialMember == null) || (member == null && socialMember != null)) {
+            "Either member or social_member must be set."
+        }
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +52,7 @@ fun Comment.toResponseDto(): CommentResponseDto {
     return CommentResponseDto(
         id = id!!,
         content = content,
-        writerId = writer.id!!,
+        memberId = member?.id,
+        socialMemberId = socialMember?.id,
     )
 }

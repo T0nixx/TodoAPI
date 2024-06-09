@@ -1,9 +1,10 @@
 package com.teamsparta.todo.infra.security
 
-import com.teamsparta.todo.domain.security.JwtAuthenticationFilter
+import com.teamsparta.todo.infra.security.jwt.JwtAuthenticationFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -19,6 +20,7 @@ class SecurityConfig {
         "/v3/**",
         "/sign-up",
         "/sign-in",
+        "/oauth2/**",
     )
 
     @Autowired
@@ -34,6 +36,8 @@ class SecurityConfig {
             .authorizeHttpRequests {
                 it
                     .requestMatchers(*allowedUrls)
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET)
                     .permitAll()
                     .anyRequest()
                     .authenticated()

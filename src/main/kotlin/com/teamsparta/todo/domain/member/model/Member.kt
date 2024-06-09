@@ -12,19 +12,16 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "app_user")
+@Table(name = "member")
 class Member(
     @Column(name = "email", nullable = false, unique = true)
     val email: String,
 
-    @Column(name = "username", nullable = false, unique = true)
-    val username: String,
+    @Column(name = "nickname", nullable = false, unique = true)
+    val nickname: String,
 
     @Column(name = "password", nullable = false)
     val password: String,
-
-    @Column(name = "salt", nullable = false, updatable = false, unique = true)
-    val salt: String,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -38,7 +35,7 @@ class Member(
 fun Member.toResponseDto(): MemberResponseDto {
     return MemberResponseDto(
         email = email,
-        username = username,
+        nickname = nickname,
     )
 }
 
@@ -46,7 +43,7 @@ fun Member.toSignInResponseDto(token: String): SignInResponseDto {
     return SignInResponseDto(
         id = id!!,
         email = email,
-        username = username,
+        nickname = nickname,
         token = token,
     )
 }

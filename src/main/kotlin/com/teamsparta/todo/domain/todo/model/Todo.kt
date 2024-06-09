@@ -2,11 +2,11 @@ package com.teamsparta.todo.domain.todo.model
 
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.member.model.Member
+import com.teamsparta.todo.domain.socialmember.model.SocialMember
 import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
@@ -17,11 +17,9 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.Instant
 
 @Entity
-@EntityListeners(AuditingEntityListener::class)
 @Table(name = "todo")
 class Todo(
     @Column(name = "title", nullable = false)
@@ -39,9 +37,19 @@ class Todo(
     var status: TodoStatus = TodoStatus.TODO,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_id", nullable = false)
-    var writer: Member,
+    @JoinColumn(name = "member_id")
+    var member: Member? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "social_member_id")
+    var socialMember: SocialMember? = null,
 ) {
+    init {
+        require((member != null && socialMember == null) || (member == null && socialMember != null)) {
+            "Either member or social_member must be set."
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -69,7 +77,8 @@ fun Todo.toResponseDto(): TodoResponseDto {
         id = id!!,
         title = title,
         content = content,
-        writerId = writer.id!!,
+        memberId = member?.id,
+        socialMemberId = socialMember?.id,
         status = status.name,
         createdAt = createdAt.toString(),
     )
@@ -81,7 +90,8 @@ fun Todo.toWithCommentsResponseDto(comments: List<CommentResponseDto>): TodoWith
         id = id!!,
         title = title,
         content = content,
-        writerId = writer.id!!,
+        memberId = member?.id,
+        socialMemberId = socialMember?.id,
         createdAt = createdAt.toString(),
         status = status.name,
         comments = comments,

@@ -6,7 +6,8 @@ import org.springframework.data.domain.Sort.Direction
 interface CustomTodoRepository {
     fun findPage(sortDirection: Direction): List<Todo>
     fun findPageByWriterId(
-        writerId: Long,
+        memberId: Long?,
+        socialMemberId: Long?,
         sortDirection: Direction,
     ): List<Todo>
 
@@ -16,8 +17,9 @@ interface CustomTodoRepository {
     ): List<Todo>
 
     fun findPageFromCursorByWriterId(
-        cursor: Long,
-        writerId: Long,
+        cursor: Long?,
+        memberId: Long?,
+        socialMemberId: Long?,
         sortDirection: Direction,
     ): List<Todo>
 }

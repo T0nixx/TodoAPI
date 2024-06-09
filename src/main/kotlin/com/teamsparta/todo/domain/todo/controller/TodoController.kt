@@ -6,6 +6,7 @@ import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
 import com.teamsparta.todo.domain.todo.service.TodoService
+import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -40,15 +40,18 @@ class TodoController(private val todoService: TodoService) {
         @RequestParam
         sortDirection: Sort.Direction?,
         @RequestParam
-        writerId: Long?,
+        memberId: Long?,
+        @RequestParam
+        socialMemberId: Long?,
         @RequestParam
         cursor: Long?,
     ): ResponseEntity<List<TodoResponseDto>> {
         return ResponseEntity.status(HttpStatus.OK).body(
             todoService.getTodoList(
                 sortDirection = sortDirection ?: Sort.Direction.DESC,
-                writerId = writerId,
-                cursor = cursor ?: 0L,
+                memberId = memberId,
+                socialMemberId = socialMemberId,
+                cursor = cursor,
             ),
         )
     }
@@ -77,14 +80,14 @@ class TodoController(private val todoService: TodoService) {
     @PostMapping
     fun createTodo(
         @AuthenticationPrincipal
-        user: User,
+        principal: MemberPrincipal,
         @Valid
         @RequestBody
         createTodoRequest: CreateTodoRequestDto,
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(todoService.createTodo(user, createTodoRequest))
+            .body(todoService.createTodo(principal, createTodoRequest))
     }
 
     @Operation(
@@ -95,7 +98,7 @@ class TodoController(private val todoService: TodoService) {
     @PutMapping("/{todoId}")
     fun updateTodo(
         @AuthenticationPrincipal
-        user: User,
+        principal: MemberPrincipal,
         @PathVariable("todoId")
         id: Long,
         @Valid
@@ -104,7 +107,7 @@ class TodoController(private val todoService: TodoService) {
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(todoService.updateTodo(user, id, updateTodoRequest))
+            .body(todoService.updateTodo(principal, id, updateTodoRequest))
     }
 
     @Operation(
@@ -115,13 +118,13 @@ class TodoController(private val todoService: TodoService) {
     @DeleteMapping("/{todoId}")
     fun deleteTodo(
         @AuthenticationPrincipal
-        user: User,
+        principal: MemberPrincipal,
         @PathVariable("todoId")
         id: Long,
     ): ResponseEntity<Unit> {
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(todoService.deleteTodo(user, id))
+            .body(todoService.deleteTodo(principal, id))
     }
 
     @Operation(
@@ -133,7 +136,7 @@ class TodoController(private val todoService: TodoService) {
     @PatchMapping("/{todoId}/status")
     fun updateTodoStatus(
         @AuthenticationPrincipal
-        user: User,
+        principal: MemberPrincipal,
         @PathVariable("todoId")
         id: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
@@ -142,7 +145,7 @@ class TodoController(private val todoService: TodoService) {
             .status(HttpStatus.OK)
             .body(
                 todoService.updateTodoStatus(
-                    user,
+                    principal,
                     id,
                     updateTodoStatusRequest,
                 ),

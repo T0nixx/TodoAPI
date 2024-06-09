@@ -3,24 +3,24 @@ package com.teamsparta.todo.domain.comment.service
 import com.teamsparta.todo.domain.comment.dto.AddCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
-import org.springframework.security.core.userdetails.User
+import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 
 interface CommentService {
     fun addComment(
-        user: User,
+        principal: MemberPrincipal,
         todoId: Long,
         addCommentRequest: AddCommentRequestDto,
     ): CommentResponseDto
 
     fun updateComment(
-        user: User,
+        principal: MemberPrincipal,
         todoId: Long,
         commentId: Long,
         updateCommentRequest: UpdateCommentRequestDto,
     ): CommentResponseDto
 
     fun deleteComment(
-        user: User,
+        principal: MemberPrincipal,
         todoId: Long,
         commentId: Long,
     )
