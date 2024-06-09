@@ -1,8 +1,8 @@
 package com.teamsparta.todo.domain.comment.model
 
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
+import com.teamsparta.todo.domain.member.model.Member
 import com.teamsparta.todo.domain.todo.model.Todo
-import com.teamsparta.todo.domain.user.model.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
@@ -22,7 +22,7 @@ class Comment(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
-    var writer: User,
+    var writer: Member,
 
     @Column(name = "content", nullable = false)
     var content: String,

@@ -3,6 +3,7 @@ package com.teamsparta.todo.domain.todo.service
 import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
+import com.teamsparta.todo.domain.member.repository.MemberRepository
 import com.teamsparta.todo.domain.todo.dto.CreateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
@@ -12,7 +13,6 @@ import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.model.toResponseDto
 import com.teamsparta.todo.domain.todo.model.toWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
-import com.teamsparta.todo.domain.user.repository.UserRepository
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.User
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 class TodoServiceImpl(
     private val todoRepository: TodoRepository,
     private val commentRepository: CommentRepository,
-    private val userRepository: UserRepository,
+    private val memberRepository: MemberRepository,
 ) : TodoService {
 
     override fun getTodoList(
@@ -125,7 +125,7 @@ class TodoServiceImpl(
         val appUserId = user.username.toLong()
         val appUser = getAppUserOrThrow(appUserId)
         if (todo.writer != appUser) throw IllegalStateException(
-            "User: ${user.username} is not the writer of the todo: ${todo.id}.",
+            "Member: ${user.username} is not the writer of the todo: ${todo.id}.",
         )
     }
 
@@ -134,10 +134,10 @@ class TodoServiceImpl(
             ?: throw ModelNotFoundException("Todo", todoId)
     }
 
-    private fun getAppUserOrThrow(appUserId: Long) =
-        userRepository.findByIdOrNull(appUserId)
+    private fun getAppUserOrThrow(memberId: Long) =
+        memberRepository.findByIdOrNull(memberId)
             ?: throw IllegalStateException(
-                "User: $appUserId does not exists",
+                "Member: $memberId does not exists",
             )
 }
 

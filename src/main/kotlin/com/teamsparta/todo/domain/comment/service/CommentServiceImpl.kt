@@ -7,9 +7,9 @@ import com.teamsparta.todo.domain.comment.model.Comment
 import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
+import com.teamsparta.todo.domain.member.repository.MemberRepository
 import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
-import com.teamsparta.todo.domain.user.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Service
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 class CommentServiceImpl(
     private val todoRepository: TodoRepository,
     private val commentRepository: CommentRepository,
-    private val userRepository: UserRepository,
+    private val memberRepository: MemberRepository,
 ) : CommentService {
 
     @Transactional
@@ -102,7 +102,7 @@ class CommentServiceImpl(
     }
 
     private fun getWriterOrThrow(writerId: Long) =
-        userRepository.findByIdOrNull(writerId)
+        memberRepository.findByIdOrNull(writerId)
             ?: throw IllegalStateException(
                 "User: $writerId does not exists",
             )

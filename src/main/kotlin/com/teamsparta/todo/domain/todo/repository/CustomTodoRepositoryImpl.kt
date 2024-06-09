@@ -2,9 +2,9 @@ package com.teamsparta.todo.domain.todo.repository
 
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
+import com.teamsparta.todo.domain.member.model.QMember
 import com.teamsparta.todo.domain.todo.model.QTodo
 import com.teamsparta.todo.domain.todo.model.Todo
-import com.teamsparta.todo.domain.user.model.QUser
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.stereotype.Repository
 import java.time.Instant
@@ -22,7 +22,8 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     override fun findPage(sortDirection: Direction): List<Todo> {
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QUser.user).fetchJoin()
+            .leftJoin(todo.writer, QMember.member)
+            .fetchJoin()
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
             .fetch()
@@ -34,7 +35,8 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     ): List<Todo> {
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QUser.user).fetchJoin()
+            .leftJoin(todo.writer, QMember.member)
+            .fetchJoin()
             .where(todo.writer.id.eq(writerId))
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
@@ -52,7 +54,8 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
 
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QUser.user).fetchJoin()
+            .leftJoin(todo.writer, QMember.member)
+            .fetchJoin()
             .where(gtOrLtId)
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)
@@ -71,7 +74,7 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
 
         return queryFactory
             .selectFrom(todo)
-            .leftJoin(todo.writer, QUser.user).fetchJoin()
+            .leftJoin(todo.writer, QMember.member).fetchJoin()
             .where(gtOrLtId.and(todo.writer.id.eq(writerId)))
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)

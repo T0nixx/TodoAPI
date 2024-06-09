@@ -1,7 +1,7 @@
-package com.teamsparta.todo.domain.user.model
+package com.teamsparta.todo.domain.member.model
 
-import com.teamsparta.todo.domain.user.dto.SignInResponseDto
-import com.teamsparta.todo.domain.user.dto.UserResponseDto
+import com.teamsparta.todo.domain.member.dto.MemberResponseDto
+import com.teamsparta.todo.domain.member.dto.SignInResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -13,7 +13,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "app_user")
-class User(
+class Member(
     @Column(name = "email", nullable = false, unique = true)
     val email: String,
 
@@ -28,21 +28,21 @@ class User(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    val role: UserRole,
+    val role: MemberRole,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 }
 
-fun User.toResponseDto(): UserResponseDto {
-    return UserResponseDto(
+fun Member.toResponseDto(): MemberResponseDto {
+    return MemberResponseDto(
         email = email,
         username = username,
     )
 }
 
-fun User.toSignInResponseDto(token: String): SignInResponseDto {
+fun Member.toSignInResponseDto(token: String): SignInResponseDto {
     return SignInResponseDto(
         id = id!!,
         email = email,

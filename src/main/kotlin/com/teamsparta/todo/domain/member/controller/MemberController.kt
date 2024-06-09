@@ -1,10 +1,10 @@
-package com.teamsparta.todo.domain.user.controller
+package com.teamsparta.todo.domain.member.controller
 
-import com.teamsparta.todo.domain.user.dto.SignInRequestDto
-import com.teamsparta.todo.domain.user.dto.SignInResponseDto
-import com.teamsparta.todo.domain.user.dto.SignUpRequestDto
-import com.teamsparta.todo.domain.user.dto.UserResponseDto
-import com.teamsparta.todo.domain.user.service.UserService
+import com.teamsparta.todo.domain.member.dto.MemberResponseDto
+import com.teamsparta.todo.domain.member.dto.SignInRequestDto
+import com.teamsparta.todo.domain.member.dto.SignInResponseDto
+import com.teamsparta.todo.domain.member.dto.SignUpRequestDto
+import com.teamsparta.todo.domain.member.service.MemberService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
-@RestController("/users")
-class UserController(val userService: UserService) {
+@RestController("/members")
+class MemberController(val memberService: MemberService) {
     @PostMapping("/sign-up")
     fun signUp(
         @Valid
         @RequestBody
         signUpRequestDto: SignUpRequestDto,
-    ): ResponseEntity<UserResponseDto> {
+    ): ResponseEntity<MemberResponseDto> {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(userService.signUp(signUpRequestDto))
+            .body(memberService.signUp(signUpRequestDto))
     }
 
     @PostMapping("/sign-in")
@@ -34,7 +34,6 @@ class UserController(val userService: UserService) {
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(userService.signIn(signInRequestDto))
+            .body(memberService.signIn(signInRequestDto))
     }
-
 }

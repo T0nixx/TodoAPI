@@ -1,4 +1,4 @@
-package com.teamsparta.todo.domain.user.dto
+package com.teamsparta.todo.domain.member.dto
 
 data class SignInResponseDto(
     val id: Long,

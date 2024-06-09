@@ -1,42 +1,44 @@
-package com.teamsparta.todo.domain.user.service
+package com.teamsparta.todo.domain.member.service
 
+import com.teamsparta.todo.domain.member.dto.MemberResponseDto
+import com.teamsparta.todo.domain.member.dto.SignInRequestDto
+import com.teamsparta.todo.domain.member.dto.SignInResponseDto
+import com.teamsparta.todo.domain.member.dto.SignUpRequestDto
+import com.teamsparta.todo.domain.member.model.Member
+import com.teamsparta.todo.domain.member.model.MemberRole
+import com.teamsparta.todo.domain.member.model.toResponseDto
+import com.teamsparta.todo.domain.member.model.toSignInResponseDto
+import com.teamsparta.todo.domain.member.repository.MemberRepository
 import com.teamsparta.todo.domain.security.JwtProvider
 import com.teamsparta.todo.domain.security.PasswordEncoder
-import com.teamsparta.todo.domain.user.dto.SignInRequestDto
-import com.teamsparta.todo.domain.user.dto.SignInResponseDto
-import com.teamsparta.todo.domain.user.dto.SignUpRequestDto
-import com.teamsparta.todo.domain.user.dto.UserResponseDto
-import com.teamsparta.todo.domain.user.model.User
-import com.teamsparta.todo.domain.user.model.UserRole
-import com.teamsparta.todo.domain.user.model.toResponseDto
-import com.teamsparta.todo.domain.user.model.toSignInResponseDto
-import com.teamsparta.todo.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class UserServiceImpl(
+class MemberServiceImpl(
     private val passwordEncoder: PasswordEncoder,
-    private val userRepository: UserRepository,
+    private val memberRepository: MemberRepository,
     private val jwtProvider: JwtProvider,
-) : UserService {
+) : MemberService {
 
     @Transactional
     override fun signUp(
         signUpRequestDto: SignUpRequestDto,
-    ): UserResponseDto {
+    ): MemberResponseDto {
         val (email, password, username) = signUpRequestDto
-        if (userRepository.existsByEmailOrUsername(email, username)) {
+        if (memberRepository.existsByEmailOrUsername(email, username)) {
             throw IllegalStateException("Email: $email or Username: $username already exists")
         }
         val (hashed, salt) = passwordEncoder.encode(password)
-        return userRepository.save(
-            User(
+
+
+        return memberRepository.save(
+            Member(
                 email = email,
                 password = hashed,
                 username = username,
                 salt = salt,
-                role = UserRole.USER,
+                role = MemberRole.USER,
             ),
         ).toResponseDto()
     }
@@ -47,7 +49,7 @@ class UserServiceImpl(
     ): SignInResponseDto {
         val (email, password) = signInRequestDto
         val user =
-            userRepository.findByEmail(email)
+            memberRepository.findByEmail(email)
                 ?: throw IllegalStateException("Email or password is incorrect")
         if (passwordEncoder.matches(
                 target = password,
