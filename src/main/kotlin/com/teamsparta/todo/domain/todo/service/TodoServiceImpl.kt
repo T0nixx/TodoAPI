@@ -34,6 +34,9 @@ class TodoServiceImpl(
         socialMemberId: Long?,
         cursor: Long?,
     ): List<TodoResponseDto> {
+        if (memberId != null && socialMemberId != null) throw IllegalArgumentException(
+            "memberId and socialMemberId can not be not-null at the same time.",
+        )
         val todos = todoRepository.findPageFromCursorByWriterId(
             cursor = cursor,
             sortDirection = sortDirection,
