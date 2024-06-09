@@ -14,14 +14,15 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableMethodSecurity
 @Configuration
 class SecurityConfig {
-    private val allowedUrls = arrayOf(
-        "/",
-        "/swagger-ui/**",
-        "/v3/**",
-        "/sign-up",
-        "/sign-in",
-        "/oauth2/**",
-    )
+    private val allowedUrls =
+        arrayOf(
+            "/",
+            "/swagger-ui/**",
+            "/v3/**",
+            "/sign-up",
+            "/sign-in",
+            "/oauth2/**",
+        )
 
     @Autowired
     lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
@@ -32,7 +33,11 @@ class SecurityConfig {
             .csrf {
                 it.disable()
             }
-            .headers { it.frameOptions { frameOptions -> frameOptions.sameOrigin() } }
+            .headers {
+                it.frameOptions { frameOptions ->
+                    frameOptions.sameOrigin()
+                }
+            }
             .authorizeHttpRequests {
                 it
                     .requestMatchers(*allowedUrls)
@@ -42,7 +47,11 @@ class SecurityConfig {
                     .anyRequest()
                     .authenticated()
             }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .sessionManagement {
+                it.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS,
+                )
+            }
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 BasicAuthenticationFilter::class.java,

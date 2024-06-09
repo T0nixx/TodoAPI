@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class SocialMemberService(private val socialMemberRepository: SocialMemberRepository) {
+class SocialMemberService(
+    private val socialMemberRepository: SocialMemberRepository,
+) {
     @Transactional
-    fun signInIfAbsent(
-        userData: OAuth2LoginUserData,
-    ): SocialMember {
+    fun signInIfAbsent(userData: OAuth2LoginUserData): SocialMember {
         val (nickname, provider, providerUserId) = userData
         return socialMemberRepository.findByProviderAndProviderUserId(
             provider = provider,

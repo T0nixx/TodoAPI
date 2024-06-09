@@ -17,7 +17,10 @@ private const val PAGE_SIZE = 10L
 class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     CustomTodoRepository {
     private val todo = QTodo.todo
-    private fun getOrderSpecifier(sortDirection: Direction): OrderSpecifier<Instant> {
+
+    private fun getOrderSpecifier(
+        sortDirection: Direction,
+    ): OrderSpecifier<Instant> {
         return if (sortDirection == Direction.DESC == true) todo.createdAt.desc() else todo.createdAt.asc()
     }
 
@@ -77,10 +80,14 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
         val builder = BooleanBuilder()
         cursor?.let {
             builder.and(
-                if (isDescending == true) todo.id.lt(cursor)
-                else todo.id.gt(
-                    cursor,
-                ),
+                if (isDescending == true) {
+                    todo.id.lt(cursor)
+                }
+                else {
+                    todo.id.gt(
+                        cursor,
+                    )
+                },
             )
         }
         memberId?.let { builder.and(todo.member.id.eq(it)) }

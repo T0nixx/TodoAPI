@@ -12,4 +12,3 @@ data class NaverTokenResponseDto(
     @JsonProperty("expires_in")
     val expiresIn: Int,
 )
-

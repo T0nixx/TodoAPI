@@ -16,13 +16,10 @@ class SocialMember(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val provider: OAuth2Provider,
-
     @Column(nullable = false)
     val providerUserId: String,
-
     @Column(nullable = false)
     var nickname: String,
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val role: MemberRole,

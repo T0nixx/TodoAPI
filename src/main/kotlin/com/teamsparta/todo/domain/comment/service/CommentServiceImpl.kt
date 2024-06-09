@@ -23,7 +23,6 @@ class CommentServiceImpl(
     private val memberRepository: MemberRepository,
     private val socialMemberRepository: SocialMemberRepository,
 ) : CommentService {
-
     @Transactional
     override fun addComment(
         principal: MemberPrincipal,
@@ -90,9 +89,14 @@ class CommentServiceImpl(
         commentRepository.delete(comment)
     }
 
-    private fun assertCommentBelongsToTodo(comment: Comment, todo: Todo) {
+    private fun assertCommentBelongsToTodo(
+        comment: Comment,
+        todo: Todo,
+    ) {
         if (comment.todo.id != todo.id) {
-            throw IllegalArgumentException("This Comment (id: $comment.id) does not belong to Todo (id: $todo.id).")
+            throw IllegalArgumentException(
+                "This Comment (id: $comment.id) does not belong to Todo (id: $todo.id).",
+            )
         }
     }
 
@@ -102,10 +106,18 @@ class CommentServiceImpl(
     ) {
         val (id, oAuth2Provider, _) = principal
         if (oAuth2Provider == null) {
-            if (id != comment.member!!.id!!) throw IllegalStateException("Member $id is not the writer of Comment ${comment.id}.")
+            if (id != comment.member!!.id!!) {
+                throw IllegalStateException(
+                    "Member $id is not the writer of Comment ${comment.id}.",
+                )
+            }
         }
         else {
-            if (id != comment.socialMember!!.id!!) throw IllegalStateException("SocialMember $id is not the writer of Comment ${comment.id}.")
+            if (id != comment.socialMember!!.id!!) {
+                throw IllegalStateException(
+                    "SocialMember $id is not the writer of Comment ${comment.id}.",
+                )
+            }
         }
     }
 

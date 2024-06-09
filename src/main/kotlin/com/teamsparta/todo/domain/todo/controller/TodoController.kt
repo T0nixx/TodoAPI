@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/todos")
 @RestController
 class TodoController(private val todoService: TodoService) {
-
     @Operation(
         summary = "TODO 목록 조회",
         description = "TODO 목록을 작성일을 기준으로 정렬하여 조회합니다.",

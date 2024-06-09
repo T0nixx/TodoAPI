@@ -31,7 +31,6 @@ class MemberController(val memberService: MemberService) {
         @RequestBody
         signInRequestDto: SignInRequestDto,
     ): ResponseEntity<SignInResponseDto> {
-
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(memberService.signIn(signInRequestDto))

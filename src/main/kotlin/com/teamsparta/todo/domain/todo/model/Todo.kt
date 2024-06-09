@@ -24,28 +24,25 @@ import java.time.Instant
 class Todo(
     @Column(name = "title", nullable = false)
     var title: String,
-
     @Column(name = "content", nullable = false)
     var content: String,
-
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: TodoStatus = TodoStatus.TODO,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     var member: Member? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "social_member_id")
     var socialMember: SocialMember? = null,
 ) {
     init {
-        require((member != null && socialMember == null) || (member == null && socialMember != null)) {
+        require(
+            (member != null && socialMember == null) || (member == null && socialMember != null),
+        ) {
             "Either member or social_member must be set."
         }
     }
@@ -54,7 +51,10 @@ class Todo(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    fun update(newTitle: String, newContent: String) {
+    fun update(
+        newTitle: String,
+        newContent: String,
+    ) {
         this.title = newTitle
         this.content = newContent
     }
@@ -64,7 +64,9 @@ class Todo(
             enumValues<TodoStatus>().find { it.name == newStatusString }
                 ?: throw IllegalArgumentException("$newStatusString is invalid status.")
         if (newStatus == this.status) {
-            throw IllegalArgumentException("New status: $newStatusString is same with old one.")
+            throw IllegalArgumentException(
+                "New status: $newStatusString is same with old one.",
+            )
         }
 
         this.status = newStatus
@@ -72,7 +74,6 @@ class Todo(
 }
 
 fun Todo.toResponseDto(): TodoResponseDto {
-
     return TodoResponseDto(
         id = id!!,
         title = title,
@@ -84,8 +85,9 @@ fun Todo.toResponseDto(): TodoResponseDto {
     )
 }
 
-fun Todo.toWithCommentsResponseDto(comments: List<CommentResponseDto>): TodoWithCommentsResponseDto {
-
+fun Todo.toWithCommentsResponseDto(
+    comments: List<CommentResponseDto>,
+): TodoWithCommentsResponseDto {
     return TodoWithCommentsResponseDto(
         id = id!!,
         title = title,

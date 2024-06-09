@@ -25,7 +25,6 @@ class NaverOAuth2Client(
     val authBaseUrl: String,
     @Value("\${naver-oauth.userDataUrl}")
     val userDataUrl: String,
-
     private val restClient: RestClient,
 ) : OAuth2Client {
     companion object {
@@ -36,7 +35,7 @@ class NaverOAuth2Client(
     override fun getAuthorizationUrl(): String {
         val uriComponents =
             UriComponentsBuilder
-                .fromUriString("${authBaseUrl}/authorize")
+                .fromUriString("$authBaseUrl/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", clientId)
                 .queryParam(
@@ -50,7 +49,7 @@ class NaverOAuth2Client(
 
     override fun getAccessToken(authorizationCode: String): String {
         val uriComponents =
-            UriComponentsBuilder.fromUriString("${authBaseUrl}/token")
+            UriComponentsBuilder.fromUriString("$authBaseUrl/token")
                 .queryParam("client_id", clientId)
                 .queryParam("client_secret", clientSecret)
                 .queryParam("grant_type", "authorization_code")
@@ -66,16 +65,15 @@ class NaverOAuth2Client(
             ?: throw RuntimeException("Get Naver token failed.")
     }
 
-    override fun getUserData(
-        accessToken: String,
-    ): OAuth2LoginUserData {
-        val (id, nickname) = restClient
-            .get()
-            .uri(userDataUrl)
-            .header("Authorization", "Bearer $accessToken")
-            .retrieve()
-            .body<NaverUserResponseDto<NaverUserData>>()?.response
-            ?: throw RuntimeException("Get Naver user data failed.")
+    override fun getUserData(accessToken: String): OAuth2LoginUserData {
+        val (id, nickname) =
+            restClient
+                .get()
+                .uri(userDataUrl)
+                .header("Authorization", "Bearer $accessToken")
+                .retrieve()
+                .body<NaverUserResponseDto<NaverUserData>>()?.response
+                ?: throw RuntimeException("Get Naver user data failed.")
 
         return OAuth2LoginUserData(
             nickname = nickname,

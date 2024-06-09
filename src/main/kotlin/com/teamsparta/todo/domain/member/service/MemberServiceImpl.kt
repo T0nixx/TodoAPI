@@ -20,7 +20,6 @@ class MemberServiceImpl(
     private val memberRepository: MemberRepository,
     private val jwtProvider: JwtProvider,
 ) : MemberService {
-
     @Transactional
     override fun signUp(
         signUpRequestDto: SignUpRequestDto,

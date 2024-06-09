@@ -17,24 +17,22 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "comment")
 class Comment(
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     var member: Member?,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "social_member_id")
     var socialMember: SocialMember?,
-
     @Column(name = "content", nullable = false)
     var content: String,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id", nullable = false)
     val todo: Todo,
 ) {
     init {
-        require((member != null && socialMember == null) || (member == null && socialMember != null)) {
+        require(
+            (member != null && socialMember == null) || (member == null && socialMember != null),
+        ) {
             "Either member or social_member must be set."
         }
     }

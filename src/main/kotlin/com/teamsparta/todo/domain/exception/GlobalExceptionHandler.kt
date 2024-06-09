@@ -12,40 +12,51 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class GlobalExceptionHandler {
     @ExceptionHandler(ModelNotFoundException::class)
-    fun handleModelNotFoundException(e: ModelNotFoundException): ResponseEntity<ErrorResponse> {
+    fun handleModelNotFoundException(
+        e: ModelNotFoundException,
+    ): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = e.message))
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
-    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+    fun handleIllegalArgumentException(
+        e: IllegalArgumentException,
+    ): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = e.message))
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+    fun handleException(
+        e: MethodArgumentNotValidException,
+    ): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             ErrorResponse(
                 message =
-                "Invalid method arguments : " + e.fieldErrors.joinToString(", ") {
-                    "Field: ${it.field} Message: ${it.defaultMessage} RejectedValue: ${it.rejectedValue}"
-                },
+                "Invalid method arguments : " +
+                    e.fieldErrors.joinToString(", ") {
+                        "Field: ${it.field} Message: ${it.defaultMessage} RejectedValue: ${it.rejectedValue}"
+                    },
             ),
         )
     }
 
     @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalStateException(e: IllegalStateException): ResponseEntity<ErrorResponse> {
+    fun handleIllegalStateException(
+        e: IllegalStateException,
+    ): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(message = e.message))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+    fun handleHttpMessageNotReadableException(
+        e: HttpMessageNotReadableException,
+    ): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(ErrorResponse(message = e.cause.toString()))

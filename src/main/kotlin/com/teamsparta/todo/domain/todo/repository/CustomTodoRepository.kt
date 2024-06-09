@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort.Direction
 
 interface CustomTodoRepository {
     fun findPage(sortDirection: Direction): List<Todo>
+
     fun findPageByWriterId(
         memberId: Long?,
         socialMemberId: Long?,

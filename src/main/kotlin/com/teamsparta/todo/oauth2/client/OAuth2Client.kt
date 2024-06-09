@@ -5,10 +5,10 @@ import com.teamsparta.todo.oauth2.dto.OAuth2LoginUserData
 
 interface OAuth2Client {
     fun getAuthorizationUrl(): String
+
     fun getAccessToken(authorizationCode: String): String
-    fun getUserData(
-        accessToken: String,
-    ): OAuth2LoginUserData
+
+    fun getUserData(accessToken: String): OAuth2LoginUserData
 
     fun support(provider: OAuth2Provider): Boolean
 }

@@ -27,22 +27,24 @@ class TodoServiceImpl(
     private val memberRepository: MemberRepository,
     private val socialMemberRepository: SocialMemberRepository,
 ) : TodoService {
-
     override fun getTodoList(
         sortDirection: Sort.Direction,
         memberId: Long?,
         socialMemberId: Long?,
         cursor: Long?,
     ): List<TodoResponseDto> {
-        if (memberId != null && socialMemberId != null) throw IllegalArgumentException(
-            "memberId and socialMemberId can not be not-null at the same time.",
-        )
-        val todos = todoRepository.findPageFromCursorByWriterId(
-            cursor = cursor,
-            sortDirection = sortDirection,
-            memberId = memberId,
-            socialMemberId = socialMemberId,
-        )
+        if (memberId != null && socialMemberId != null) {
+            throw IllegalArgumentException(
+                "memberId and socialMemberId can not be not-null at the same time.",
+            )
+        }
+        val todos =
+            todoRepository.findPageFromCursorByWriterId(
+                cursor = cursor,
+                sortDirection = sortDirection,
+                memberId = memberId,
+                socialMemberId = socialMemberId,
+            )
 
         return todos.map { it.toResponseDto() }
     }
@@ -108,7 +110,10 @@ class TodoServiceImpl(
     }
 
     @Transactional
-    override fun deleteTodo(principal: MemberPrincipal, todoId: Long) {
+    override fun deleteTodo(
+        principal: MemberPrincipal,
+        todoId: Long,
+    ) {
         val todo = getTodoOrThrow(todoId)
         assertUserIsTodoWriter(principal, todo)
         val comments = commentRepository.findAllByTodoId(todoId)
@@ -116,13 +121,24 @@ class TodoServiceImpl(
         todoRepository.delete(todo)
     }
 
-    private fun assertUserIsTodoWriter(principal: MemberPrincipal, todo: Todo) {
+    private fun assertUserIsTodoWriter(
+        principal: MemberPrincipal,
+        todo: Todo,
+    ) {
         val (id, oAuth2Provider, _) = principal
         if (oAuth2Provider == null) {
-            if (id != todo.member!!.id!!) throw IllegalStateException("Member $id is not the writer of Todo ${todo.id}.")
+            if (id != todo.member!!.id!!) {
+                throw IllegalStateException(
+                    "Member $id is not the writer of Todo ${todo.id}.",
+                )
+            }
         }
         else {
-            if (id != todo.socialMember!!.id!!) throw IllegalStateException("SocialMember $id is not the writer of Todo ${todo.id}.")
+            if (id != todo.socialMember!!.id!!) {
+                throw IllegalStateException(
+                    "SocialMember $id is not the writer of Todo ${todo.id}.",
+                )
+            }
         }
     }
 
@@ -131,4 +147,3 @@ class TodoServiceImpl(
             ?: throw ModelNotFoundException("Todo", todoId)
     }
 }
-

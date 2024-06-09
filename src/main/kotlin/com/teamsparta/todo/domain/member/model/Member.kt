@@ -16,13 +16,10 @@ import jakarta.persistence.Table
 class Member(
     @Column(name = "email", nullable = false, unique = true)
     val email: String,
-
     @Column(name = "nickname", nullable = false, unique = true)
     val nickname: String,
-
     @Column(name = "password", nullable = false)
     val password: String,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     val role: MemberRole,

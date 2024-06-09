@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/todos/{todoId}/comments")
 @RestController
 class CommentController(private val commentService: CommentService) {
-
     @Operation(summary = "댓글 생성")
     @PostMapping("/")
     fun addComment(

@@ -35,5 +35,8 @@ interface TodoService {
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
     ): TodoResponseDto
 
-    fun deleteTodo(principal: MemberPrincipal, todoId: Long)
+    fun deleteTodo(
+        principal: MemberPrincipal,
+        todoId: Long,
+    )
 }

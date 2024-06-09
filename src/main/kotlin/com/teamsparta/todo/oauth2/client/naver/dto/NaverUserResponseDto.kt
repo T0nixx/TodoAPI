@@ -8,5 +8,3 @@ data class NaverUserResponseDto<T>(
     val message: String,
     val response: T,
 )
-
-
