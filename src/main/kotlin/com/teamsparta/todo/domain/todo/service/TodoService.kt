@@ -14,7 +14,7 @@ interface TodoService {
         memberId: Long?,
         socialMemberId: Long?,
         cursor: Long?,
-    ): List<TodoResponseDto>
+    ): List<TodoWithCommentsResponseDto>
 
     fun getTodoById(todoId: Long): TodoWithCommentsResponseDto
 

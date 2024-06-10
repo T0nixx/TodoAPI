@@ -44,7 +44,7 @@ class TodoController(private val todoService: TodoService) {
         socialMemberId: Long?,
         @RequestParam
         cursor: Long?,
-    ): ResponseEntity<List<TodoResponseDto>> {
+    ): ResponseEntity<List<TodoWithCommentsResponseDto>> {
         return ResponseEntity.status(HttpStatus.OK).body(
             todoService.getTodoList(
                 sortDirection = sortDirection ?: Sort.Direction.DESC,

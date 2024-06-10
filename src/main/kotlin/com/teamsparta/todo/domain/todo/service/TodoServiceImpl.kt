@@ -32,7 +32,7 @@ class TodoServiceImpl(
         memberId: Long?,
         socialMemberId: Long?,
         cursor: Long?,
-    ): List<TodoResponseDto> {
+    ): List<TodoWithCommentsResponseDto> {
         if (memberId != null && socialMemberId != null) {
             throw IllegalArgumentException(
                 "memberId and socialMemberId can not be not-null at the same time.",
@@ -45,8 +45,10 @@ class TodoServiceImpl(
                 memberId = memberId,
                 socialMemberId = socialMemberId,
             )
+        val comments =
+            commentRepository.findByTodoIdIn(todos.map { it.id!! })
 
-        return todos.map { it.toResponseDto() }
+        return todos.map { it.toWithCommentsResponseDto(comments.map { it.toResponseDto() }) }
     }
 
     override fun getTodoById(todoId: Long): TodoWithCommentsResponseDto {
