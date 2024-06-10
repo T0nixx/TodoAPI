@@ -26,9 +26,10 @@
 
 ## API specification
 
-<p align="center"><img src="assets/API-spec.png" alt="API-spec.png"></p>
-https://lace-william-4d4.notion.site/6645714a178a4265817486497e508396?v=1fccf03ee7bf470d8f978f5f02d746e4&pvs=25
-http://localhost:8080/swagger-ui/index.html#
+<p align="center"><img src="assets/API-SPEC.png" alt="API-SPEC.png"></p>
+
+- https://lace-william-4d4.notion.site/6645714a178a4265817486497e508396?v=1fccf03ee7bf470d8f978f5f02d746e4&pvs=25
+- http://localhost:8080/swagger-ui/index.html#
 
 ## Environment
 
