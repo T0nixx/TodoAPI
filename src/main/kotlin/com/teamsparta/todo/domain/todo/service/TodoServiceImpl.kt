@@ -117,7 +117,7 @@ class TodoServiceImpl(
         val todo = getTodoOrThrow(todoId)
         assertUserIsTodoWriter(principal, todo)
         val comments = commentRepository.findAllByTodoId(todoId)
-        comments.forEach { commentRepository.delete(it) }
+        commentRepository.deleteAll(comments)
         todoRepository.delete(todo)
     }
 
