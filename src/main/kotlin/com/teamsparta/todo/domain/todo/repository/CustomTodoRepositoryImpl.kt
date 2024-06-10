@@ -24,50 +24,6 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
         return if (sortDirection == Direction.DESC == true) todo.createdAt.desc() else todo.createdAt.asc()
     }
 
-    override fun findPage(sortDirection: Direction): List<Todo> {
-        return queryFactory
-            .selectFrom(todo)
-            .leftJoin(todo.member, QMember.member)
-            .fetchJoin()
-            .orderBy(getOrderSpecifier(sortDirection))
-            .limit(PAGE_SIZE)
-            .fetch()
-    }
-
-    override fun findPageByWriterId(
-        memberId: Long?,
-        socialMemberId: Long?,
-        sortDirection: Direction,
-    ): List<Todo> {
-        return queryFactory
-            .selectFrom(todo)
-            .leftJoin(todo.member, QMember.member)
-            .fetchJoin()
-            .where(todo.member.id.eq(memberId))
-            .orderBy(getOrderSpecifier(sortDirection))
-            .limit(PAGE_SIZE)
-            .fetch()
-    }
-
-    override fun findPageFromCursor(
-        cursor: Long,
-        sortDirection: Direction,
-    ): List<Todo> {
-        val todo = QTodo.todo
-        val isDescending = sortDirection == Direction.DESC
-        val gtOrLtId =
-            if (isDescending == true) todo.id.lt(cursor) else todo.id.gt(cursor)
-
-        return queryFactory
-            .selectFrom(todo)
-            .leftJoin(todo.member, QMember.member)
-            .fetchJoin()
-            .where(gtOrLtId)
-            .orderBy(getOrderSpecifier(sortDirection))
-            .limit(PAGE_SIZE)
-            .fetch()
-    }
-
     override fun findPageFromCursorByWriterId(
         cursor: Long?,
         memberId: Long?,
