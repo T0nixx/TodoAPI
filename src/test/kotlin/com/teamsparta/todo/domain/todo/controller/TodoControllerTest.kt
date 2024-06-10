@@ -111,7 +111,7 @@ class TodoControllerTest @Autowired constructor(
 
         describe("GET /todos/{todoId}는") {
             context("존재하지 않는 todoId에 대해 조회할 경우") {
-                it("ModelNotFoundException이 발생해야한다.") {
+                it("ModelNotFoundException에 대한 message가 담긴 ErrorResponse로 응답해야 한다.") {
                     // given
                     val todoId = 170L
 
