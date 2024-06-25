@@ -1,7 +1,7 @@
 package com.teamsparta.todo.oauth2.service
 
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
-import com.teamsparta.todo.domain.socialmember.service.SocialMemberService
+import com.teamsparta.todo.domain.member.model.OAuth2Provider
+import com.teamsparta.todo.domain.member.service.SocialMemberService
 import com.teamsparta.todo.infra.security.jwt.JwtProvider
 import com.teamsparta.todo.oauth2.dto.OAuth2LoginResponseDto
 import org.springframework.stereotype.Service
@@ -18,11 +18,10 @@ class OAuth2LoginService(
     ): OAuth2LoginResponseDto {
         return oAuth2ClientService.login(provider, authorizationCode)
             .let { socialMemberService.signInIfAbsent(it) }
-            .also { println(it) }
             .let {
                 jwtProvider.createToken(
                     id = it.id!!,
-                    oAuth2Provider = it.provider,
+                    isSocial = true,
                     role = it.role,
                 )
             }

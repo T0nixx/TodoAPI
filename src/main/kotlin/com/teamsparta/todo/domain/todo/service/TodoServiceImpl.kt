@@ -1,20 +1,15 @@
 package com.teamsparta.todo.domain.todo.service
 
-import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
 import com.teamsparta.todo.domain.member.repository.MemberRepository
-import com.teamsparta.todo.domain.socialmember.repository.SocialMemberRepository
 import com.teamsparta.todo.domain.todo.dto.CreateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
 import com.teamsparta.todo.domain.todo.model.Todo
-import com.teamsparta.todo.domain.todo.model.toResponseDto
-import com.teamsparta.todo.domain.todo.model.toWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
-import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -25,122 +20,102 @@ class TodoServiceImpl(
     private val todoRepository: TodoRepository,
     private val commentRepository: CommentRepository,
     private val memberRepository: MemberRepository,
-    private val socialMemberRepository: SocialMemberRepository,
 ) : TodoService {
     override fun getTodoList(
         sortDirection: Sort.Direction,
         memberId: Long?,
-        socialMemberId: Long?,
         cursor: Long?,
     ): List<TodoWithCommentsResponseDto> {
-        if (memberId != null && socialMemberId != null) {
-            throw IllegalArgumentException(
-                "memberId and socialMemberId can not be not-null at the same time.",
-            )
-        }
         val todos =
             todoRepository.findPageFromCursorByWriterId(
                 cursor = cursor,
                 sortDirection = sortDirection,
                 memberId = memberId,
-                socialMemberId = socialMemberId,
             )
         val comments =
             commentRepository.findByTodoIdIn(todos.map { it.id!! })
 
-        return todos.map { it.toWithCommentsResponseDto(comments.map { it.toResponseDto() }) }
+        return todos.map { TodoWithCommentsResponseDto.from(it, comments) }
     }
 
     override fun getTodoById(todoId: Long): TodoWithCommentsResponseDto {
         val todo = getTodoOrThrow(todoId)
         val comments = commentRepository.findAllByTodoId(todoId)
-        val commentResponses = comments.map { it.toResponseDto() }
-        return todo.toWithCommentsResponseDto(commentResponses)
+
+        return TodoWithCommentsResponseDto.from(todo, comments)
     }
 
     @Transactional
     override fun createTodo(
-        principal: MemberPrincipal,
+        memberId: Long,
         createTodoRequest: CreateTodoRequestDto,
     ): TodoResponseDto {
         val (title, content) = createTodoRequest
-        val (id, oAuth2Provider, _) = principal
 
-        return if (oAuth2Provider == null) {
-            memberRepository.findByIdOrNull(id)?.let {
-                Todo(title = title, content = content, member = it)
-            } ?: throw ModelNotFoundException("Member", id)
-        }
-        else {
-            socialMemberRepository.findByIdOrNull(id)?.let {
-                Todo(title = title, content = content, socialMember = it)
-            } ?: throw ModelNotFoundException("SocialMember", id)
-        }.let { todoRepository.save(it).toResponseDto() }
+        return memberRepository.findByIdOrNull(memberId)?.let { member ->
+            Todo(
+                title = title,
+                content = content,
+                member = member,
+            )
+                .let { todoRepository.save(it) }
+                .let { TodoResponseDto.from(it) }
+        } ?: throw ModelNotFoundException("Member", memberId)
     }
 
     @Transactional
     override fun updateTodo(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
         updateTodoRequest: UpdateTodoRequestDto,
     ): TodoResponseDto {
         val todo = getTodoOrThrow(todoId)
 
-        assertUserIsTodoWriter(principal, todo)
+        checkMemberIsTodoWriter(memberId, todo)
 
         val (title, content) = updateTodoRequest
         todo.update(title, content)
 
-        return todo.toResponseDto()
+        return TodoResponseDto.from(todo)
     }
 
     @Transactional
     override fun updateTodoStatus(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
     ): TodoResponseDto {
         val todo = getTodoOrThrow(todoId)
 
-        assertUserIsTodoWriter(principal, todo)
+        checkMemberIsTodoWriter(memberId, todo)
 
         val (status) = updateTodoStatusRequest
 
         todo.updateStatus(status)
 
-        return todo.toResponseDto()
+        return TodoResponseDto.from(todo)
     }
 
     @Transactional
     override fun deleteTodo(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
     ) {
         val todo = getTodoOrThrow(todoId)
-        assertUserIsTodoWriter(principal, todo)
+        checkMemberIsTodoWriter(memberId, todo)
         val comments = commentRepository.findAllByTodoId(todoId)
         commentRepository.deleteAll(comments)
         todoRepository.delete(todo)
     }
 
-    private fun assertUserIsTodoWriter(
-        principal: MemberPrincipal,
+    private fun checkMemberIsTodoWriter(
+        memberId: Long,
         todo: Todo,
     ) {
-        val (id, oAuth2Provider, _) = principal
-        if (oAuth2Provider == null) {
-            if (id != todo.member!!.id!!) {
-                throw IllegalStateException(
-                    "Member $id is not the writer of Todo ${todo.id}.",
-                )
-            }
-        }
-        else {
-            if (id != todo.socialMember!!.id!!) {
-                throw IllegalStateException(
-                    "SocialMember $id is not the writer of Todo ${todo.id}.",
-                )
-            }
+        if (memberId != todo.member.id!!) {
+            throw IllegalStateException(
+                "Member $memberId is not the writer of Todo ${todo.id}.",
+            )
         }
     }
 

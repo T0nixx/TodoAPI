@@ -5,9 +5,6 @@ import com.teamsparta.todo.domain.member.dto.SignInRequestDto
 import com.teamsparta.todo.domain.member.dto.SignInResponseDto
 import com.teamsparta.todo.domain.member.dto.SignUpRequestDto
 import com.teamsparta.todo.domain.member.model.Member
-import com.teamsparta.todo.domain.member.model.MemberRole
-import com.teamsparta.todo.domain.member.model.toResponseDto
-import com.teamsparta.todo.domain.member.model.toSignInResponseDto
 import com.teamsparta.todo.domain.member.repository.MemberRepository
 import com.teamsparta.todo.infra.security.jwt.JwtProvider
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -30,13 +27,12 @@ class MemberServiceImpl(
         }
 
         return memberRepository.save(
-            Member(
+            Member.createMember(
                 email = email,
                 password = passwordEncoder.encode(password),
                 nickname = nickname,
-                role = MemberRole.USER,
             ),
-        ).toResponseDto()
+        ).let { MemberResponseDto.from(it) }
     }
 
     @Transactional
@@ -51,7 +47,7 @@ class MemberServiceImpl(
             throw IllegalStateException("Email or password is incorrect")
         }
         val token =
-            jwtProvider.createToken(member.id!!, member.role, null)
-        return member.toSignInResponseDto(token)
+            jwtProvider.createToken(member.id!!, isSocial = false, member.role)
+        return SignInResponseDto(token = token, memberId = member.id!!)
     }
 }

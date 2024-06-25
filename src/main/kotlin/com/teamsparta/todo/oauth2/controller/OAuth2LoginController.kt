@@ -1,6 +1,6 @@
 package com.teamsparta.todo.oauth2.controller
 
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
+import com.teamsparta.todo.domain.member.model.OAuth2Provider
 import com.teamsparta.todo.oauth2.dto.OAuth2LoginResponseDto
 import com.teamsparta.todo.oauth2.service.OAuth2ClientService
 import com.teamsparta.todo.oauth2.service.OAuth2LoginService

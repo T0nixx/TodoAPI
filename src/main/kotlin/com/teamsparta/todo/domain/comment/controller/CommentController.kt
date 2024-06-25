@@ -36,7 +36,7 @@ class CommentController(private val commentService: CommentService) {
             .status(HttpStatus.OK)
             .body(
                 commentService.addComment(
-                    principal,
+                    principal.id,
                     todoId,
                     addCommentRequest,
                 ),
@@ -58,7 +58,7 @@ class CommentController(private val commentService: CommentService) {
     ): ResponseEntity<CommentResponseDto> {
         return ResponseEntity.status(HttpStatus.OK).body(
             commentService.updateComment(
-                principal,
+                principal.id,
                 todoId,
                 commentId,
                 updateCommentRequest,
@@ -78,7 +78,7 @@ class CommentController(private val commentService: CommentService) {
     ): ResponseEntity<Unit> {
         return ResponseEntity.status(HttpStatus.OK).body(
             commentService.deleteComment(
-                principal,
+                principal.id,
                 todoId,
                 commentId,
             ),

@@ -2,11 +2,9 @@ package com.teamsparta.todo.domain.todo.service
 
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
-import com.teamsparta.todo.domain.member.model.MemberRole
+import com.teamsparta.todo.domain.member.model.Member
+import com.teamsparta.todo.domain.member.model.OAuth2Provider
 import com.teamsparta.todo.domain.member.repository.MemberRepository
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
-import com.teamsparta.todo.domain.socialmember.model.SocialMember
-import com.teamsparta.todo.domain.socialmember.repository.SocialMemberRepository
 import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.model.TodoStatus
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
@@ -37,14 +35,12 @@ class TodoServiceTest : BehaviorSpec(
         val todoRepository = mockk<TodoRepository>()
         val commentRepository = mockk<CommentRepository>()
         val memberRepository = mockk<MemberRepository>()
-        val socialMemberRepository = mockk<SocialMemberRepository>()
 
         val todoService =
             TodoServiceImpl(
                 todoRepository,
                 commentRepository,
                 memberRepository,
-                socialMemberRepository,
             )
 
         Given(
@@ -70,18 +66,16 @@ class TodoServiceTest : BehaviorSpec(
                     val todoId = 5L
                     val title = "TEST"
                     val content = "TEST"
-                    val socialMember = SocialMember(
+                    val socialMember = Member.createSocialMember(
                         provider = OAuth2Provider.NAVER,
                         providerUserId = "SOME_PROVIDER_USER_ID",
                         nickname = "SOME_NICKNAME",
-                        role = MemberRole.USER,
                     )
 
                     every { todoRepository.findByIdOrNull(todoId) } returns Todo(
                         title = title,
                         content = content,
-                        member = null,
-                        socialMember = socialMember,
+                        member = socialMember,
                     ).also { it.id = todoId }
 
                     every { commentRepository.findAllByTodoId(todoId) } returns emptyList()
@@ -93,8 +87,7 @@ class TodoServiceTest : BehaviorSpec(
                     result.content shouldBe content
                     result.createdAt shouldBeLessThan Instant.now().toString()
                     result.comments shouldBe emptyList()
-                    result.memberId shouldBe null
-                    result.socialMemberId shouldBe socialMember.id
+                    result.memberId shouldBe socialMember.id
                     result.status shouldBe TodoStatus.TODO.name
                 }
             }

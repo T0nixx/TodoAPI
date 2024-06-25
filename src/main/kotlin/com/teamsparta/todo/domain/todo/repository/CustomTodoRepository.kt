@@ -7,7 +7,6 @@ interface CustomTodoRepository {
     fun findPageFromCursorByWriterId(
         cursor: Long?,
         memberId: Long?,
-        socialMemberId: Long?,
         sortDirection: Direction,
     ): List<Todo>
 }

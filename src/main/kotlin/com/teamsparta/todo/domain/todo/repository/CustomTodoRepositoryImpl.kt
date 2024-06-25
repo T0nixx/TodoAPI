@@ -4,7 +4,6 @@ import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.teamsparta.todo.domain.member.model.QMember
-import com.teamsparta.todo.domain.socialmember.model.QSocialMember
 import com.teamsparta.todo.domain.todo.model.QTodo
 import com.teamsparta.todo.domain.todo.model.Todo
 import org.springframework.data.domain.Sort.Direction
@@ -27,7 +26,6 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     override fun findPageFromCursorByWriterId(
         cursor: Long?,
         memberId: Long?,
-        socialMemberId: Long?,
         sortDirection: Direction,
     ): List<Todo> {
         val todo = QTodo.todo
@@ -47,12 +45,10 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
             )
         }
         memberId?.let { builder.and(todo.member.id.eq(it)) }
-        socialMemberId?.let { builder.and(todo.socialMember.id.eq(it)) }
 
         return queryFactory
             .selectFrom(todo)
             .leftJoin(todo.member, QMember.member)
-            .leftJoin(todo.socialMember, QSocialMember.socialMember)
             .where(builder)
             .orderBy(getOrderSpecifier(sortDirection))
             .limit(PAGE_SIZE)

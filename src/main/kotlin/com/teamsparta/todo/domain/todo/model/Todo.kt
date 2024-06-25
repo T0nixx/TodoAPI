@@ -1,10 +1,6 @@
 package com.teamsparta.todo.domain.todo.model
 
-import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.member.model.Member
-import com.teamsparta.todo.domain.socialmember.model.SocialMember
-import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
-import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -34,18 +30,8 @@ class Todo(
     var status: TodoStatus = TodoStatus.TODO,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    var member: Member? = null,
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "social_member_id")
-    var socialMember: SocialMember? = null,
+    val member: Member,
 ) {
-    init {
-        require(
-            (member != null && socialMember == null) || (member == null && socialMember != null),
-        ) {
-            "Either member or social_member must be set."
-        }
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,31 +57,4 @@ class Todo(
 
         this.status = newStatus
     }
-}
-
-fun Todo.toResponseDto(): TodoResponseDto {
-    return TodoResponseDto(
-        id = id!!,
-        title = title,
-        content = content,
-        memberId = member?.id,
-        socialMemberId = socialMember?.id,
-        status = status.name,
-        createdAt = createdAt.toString(),
-    )
-}
-
-fun Todo.toWithCommentsResponseDto(
-    comments: List<CommentResponseDto>,
-): TodoWithCommentsResponseDto {
-    return TodoWithCommentsResponseDto(
-        id = id!!,
-        title = title,
-        content = content,
-        memberId = member?.id,
-        socialMemberId = socialMember?.id,
-        createdAt = createdAt.toString(),
-        status = status.name,
-        comments = comments,
-    )
 }

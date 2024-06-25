@@ -1,6 +1,6 @@
 package com.teamsparta.todo.oauth2.service
 
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
+import com.teamsparta.todo.domain.member.model.OAuth2Provider
 import com.teamsparta.todo.oauth2.client.OAuth2Client
 import com.teamsparta.todo.oauth2.dto.OAuth2LoginUserData
 import org.springframework.stereotype.Service

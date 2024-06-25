@@ -49,7 +49,6 @@ class TodoController(private val todoService: TodoService) {
             todoService.getTodoList(
                 sortDirection = sortDirection ?: Sort.Direction.DESC,
                 memberId = memberId,
-                socialMemberId = socialMemberId,
                 cursor = cursor,
             ),
         )
@@ -86,7 +85,12 @@ class TodoController(private val todoService: TodoService) {
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(todoService.createTodo(principal, createTodoRequest))
+            .body(
+                todoService.createTodo(
+                    memberId = principal.id,
+                    createTodoRequest,
+                ),
+            )
     }
 
     @Operation(
@@ -106,7 +110,7 @@ class TodoController(private val todoService: TodoService) {
     ): ResponseEntity<TodoResponseDto> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(todoService.updateTodo(principal, id, updateTodoRequest))
+            .body(todoService.updateTodo(principal.id, id, updateTodoRequest))
     }
 
     @Operation(
@@ -123,7 +127,7 @@ class TodoController(private val todoService: TodoService) {
     ): ResponseEntity<Unit> {
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(todoService.deleteTodo(principal, id))
+            .body(todoService.deleteTodo(principal.id, id))
     }
 
     @Operation(
@@ -144,7 +148,7 @@ class TodoController(private val todoService: TodoService) {
             .status(HttpStatus.OK)
             .body(
                 todoService.updateTodoStatus(
-                    principal,
+                    principal.id,
                     id,
                     updateTodoStatusRequest,
                 ),

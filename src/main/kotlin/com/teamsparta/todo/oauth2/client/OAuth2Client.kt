@@ -1,6 +1,6 @@
 package com.teamsparta.todo.oauth2.client
 
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
+import com.teamsparta.todo.domain.member.model.OAuth2Provider
 import com.teamsparta.todo.oauth2.dto.OAuth2LoginUserData
 
 interface OAuth2Client {

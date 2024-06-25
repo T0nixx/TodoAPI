@@ -4,14 +4,11 @@ import com.teamsparta.todo.domain.comment.dto.AddCommentRequestDto
 import com.teamsparta.todo.domain.comment.dto.CommentResponseDto
 import com.teamsparta.todo.domain.comment.dto.UpdateCommentRequestDto
 import com.teamsparta.todo.domain.comment.model.Comment
-import com.teamsparta.todo.domain.comment.model.toResponseDto
 import com.teamsparta.todo.domain.comment.repository.CommentRepository
 import com.teamsparta.todo.domain.exception.dto.ModelNotFoundException
 import com.teamsparta.todo.domain.member.repository.MemberRepository
-import com.teamsparta.todo.domain.socialmember.repository.SocialMemberRepository
 import com.teamsparta.todo.domain.todo.model.Todo
 import com.teamsparta.todo.domain.todo.repository.TodoRepository
-import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,43 +18,32 @@ class CommentServiceImpl(
     private val todoRepository: TodoRepository,
     private val commentRepository: CommentRepository,
     private val memberRepository: MemberRepository,
-    private val socialMemberRepository: SocialMemberRepository,
 ) : CommentService {
     @Transactional
     override fun addComment(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
         addCommentRequest: AddCommentRequestDto,
     ): CommentResponseDto {
         val todo = getTodoOrThrow(todoId)
 
-        val (id, oAuth2Provider, _) = principal
         val (content) = addCommentRequest
-        return if (oAuth2Provider == null) {
-            memberRepository.findByIdOrNull(id)?.let {
-                Comment(
-                    member = it,
-                    todo = todo,
-                    content = content,
-                    socialMember = null,
-                )
-            } ?: throw ModelNotFoundException("Member", id)
-        }
-        else {
-            socialMemberRepository.findByIdOrNull(id)?.let {
-                Comment(
-                    member = null,
-                    todo = todo,
-                    content = content,
-                    socialMember = it,
-                )
-            } ?: throw ModelNotFoundException("SocialMember", id)
-        }.let { commentRepository.save(it).toResponseDto() }
+        return memberRepository.findByIdOrNull(memberId)?.let { member ->
+            Comment(
+                member = member,
+                todo = todo,
+                content = content,
+            ).let {
+                commentRepository.save(it)
+            }.let {
+                CommentResponseDto.from(it)
+            }
+        } ?: throw ModelNotFoundException("Member", memberId)
     }
 
     @Transactional
     override fun updateComment(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
         commentId: Long,
         updateCommentRequest: UpdateCommentRequestDto,
@@ -66,30 +52,26 @@ class CommentServiceImpl(
 
         val comment = getCommentOrThrow(commentId)
 
-        assertCommentBelongsToTodo(comment, todo)
-        assertUserIsCommentWriter(principal, comment)
+        checkCommentBelongsToTodo(comment, todo)
+        checkUserIsCommentWriter(memberId, comment)
         val (content) = updateCommentRequest
 
         comment.updateContent(content)
-        return comment.toResponseDto()
+        return CommentResponseDto.from(comment)
     }
 
     @Transactional
-    override fun deleteComment(
-        principal: MemberPrincipal,
-        todoId: Long,
-        commentId: Long,
-    ) {
+    override fun deleteComment(memberId: Long, todoId: Long, commentId: Long) {
         val todo = getTodoOrThrow(todoId)
         val comment = getCommentOrThrow(commentId)
 
-        assertCommentBelongsToTodo(comment, todo)
-        assertUserIsCommentWriter(principal, comment)
+        checkCommentBelongsToTodo(comment, todo)
+        checkUserIsCommentWriter(memberId, comment)
 
         commentRepository.delete(comment)
     }
 
-    private fun assertCommentBelongsToTodo(
+    private fun checkCommentBelongsToTodo(
         comment: Comment,
         todo: Todo,
     ) {
@@ -100,24 +82,14 @@ class CommentServiceImpl(
         }
     }
 
-    private fun assertUserIsCommentWriter(
-        principal: MemberPrincipal,
+    private fun checkUserIsCommentWriter(
+        memberId: Long,
         comment: Comment,
     ) {
-        val (id, oAuth2Provider, _) = principal
-        if (oAuth2Provider == null) {
-            if (id != comment.member!!.id!!) {
-                throw IllegalStateException(
-                    "Member $id is not the writer of Comment ${comment.id}.",
-                )
-            }
-        }
-        else {
-            if (id != comment.socialMember!!.id!!) {
-                throw IllegalStateException(
-                    "SocialMember $id is not the writer of Comment ${comment.id}.",
-                )
-            }
+        if (memberId != comment.member!!.id!!) {
+            throw IllegalStateException(
+                "Member $memberId is not the writer of Comment ${comment.id}.",
+            )
         }
     }
 

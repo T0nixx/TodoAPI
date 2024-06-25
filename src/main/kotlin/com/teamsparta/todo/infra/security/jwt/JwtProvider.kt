@@ -1,7 +1,6 @@
 package com.teamsparta.todo.infra.security.jwt
 
 import com.teamsparta.todo.domain.member.model.MemberRole
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
@@ -20,8 +19,8 @@ class JwtProvider(
 
     fun createToken(
         id: Long,
+        isSocial: Boolean,
         role: MemberRole,
-        oAuth2Provider: OAuth2Provider?,
     ): String {
         val issuer = "todo.teamsparta.com"
         val now = Instant.now()
@@ -29,7 +28,7 @@ class JwtProvider(
         val claims =
             Jwts
                 .claims()
-                .add(mapOf("role" to role, "oAuth2Provider" to oAuth2Provider))
+                .add(mapOf("role" to role, "isSocial" to isSocial))
                 .build()
         return Jwts
             .builder()

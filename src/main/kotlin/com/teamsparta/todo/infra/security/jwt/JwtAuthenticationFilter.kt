@@ -1,7 +1,6 @@
 package com.teamsparta.todo.infra.security.jwt
 
 import com.teamsparta.todo.domain.member.model.MemberRole
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
 import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -26,21 +25,16 @@ class JwtAuthenticationFilter(private val jwtProvider: JwtProvider) :
         if (token != null) {
             jwtProvider.validateTokenAndGetClaims(token).onSuccess { claims ->
                 val memberId = claims.payload.subject.toLong()
+                val isSocial = claims.payload["isSocial"] as Boolean
                 val role =
                     MemberRole.valueOf(claims.payload["role"] as String)
-                val oAuth2Provider =
-                    claims.payload["oAuth2Provider"]?.let {
-                        OAuth2Provider.valueOf(
-                            it as String,
-                        )
-                    }
 
                 val authentication =
                     JwtAuthenticationToken(
                         principal =
                         MemberPrincipal(
                             id = memberId,
-                            oAuth2Provider = oAuth2Provider,
+                            isSocial = isSocial,
                             roles = setOf(role),
                         ),
                         details =

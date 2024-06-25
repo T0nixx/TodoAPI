@@ -5,38 +5,36 @@ import com.teamsparta.todo.domain.todo.dto.TodoResponseDto
 import com.teamsparta.todo.domain.todo.dto.TodoWithCommentsResponseDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoRequestDto
 import com.teamsparta.todo.domain.todo.dto.UpdateTodoStatusRequestDto
-import com.teamsparta.todo.infra.security.dto.MemberPrincipal
 import org.springframework.data.domain.Sort
 
 interface TodoService {
     fun getTodoList(
         sortDirection: Sort.Direction,
         memberId: Long?,
-        socialMemberId: Long?,
         cursor: Long?,
     ): List<TodoWithCommentsResponseDto>
 
     fun getTodoById(todoId: Long): TodoWithCommentsResponseDto
 
     fun createTodo(
-        principal: MemberPrincipal,
+        memberId: Long,
         createTodoRequest: CreateTodoRequestDto,
     ): TodoResponseDto
 
     fun updateTodo(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
         updateTodoRequest: UpdateTodoRequestDto,
     ): TodoResponseDto
 
     fun updateTodoStatus(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
         updateTodoStatusRequest: UpdateTodoStatusRequestDto,
     ): TodoResponseDto
 
     fun deleteTodo(
-        principal: MemberPrincipal,
+        memberId: Long,
         todoId: Long,
     )
 }

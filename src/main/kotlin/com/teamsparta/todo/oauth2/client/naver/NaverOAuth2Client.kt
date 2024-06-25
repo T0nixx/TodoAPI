@@ -1,6 +1,6 @@
 package com.teamsparta.todo.oauth2.client.naver
 
-import com.teamsparta.todo.domain.socialmember.model.OAuth2Provider
+import com.teamsparta.todo.domain.member.model.OAuth2Provider
 import com.teamsparta.todo.oauth2.client.OAuth2Client
 import com.teamsparta.todo.oauth2.client.naver.dto.NaverTokenResponseDto
 import com.teamsparta.todo.oauth2.client.naver.dto.NaverUserData

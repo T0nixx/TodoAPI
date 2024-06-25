@@ -1,7 +1,5 @@
 package com.teamsparta.todo.domain.member.model
 
-import com.teamsparta.todo.domain.member.dto.MemberResponseDto
-import com.teamsparta.todo.domain.member.dto.SignInResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -14,33 +12,54 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "member")
 class Member(
-    @Column(name = "email", nullable = false, unique = true)
-    val email: String,
-    @Column(name = "nickname", nullable = false, unique = true)
+    @Column(name = "email", unique = true)
+    val email: String?,
+    @Column(name = "nickname", nullable = false)
     val nickname: String,
-    @Column(name = "password", nullable = false)
-    val password: String,
+    @Column(name = "password")
+    val password: String?,
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     val role: MemberRole,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider")
+    val provider: OAuth2Provider?,
+    @Column(name = "provider_user_id")
+    val providerUserId: String?,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
-}
 
-fun Member.toResponseDto(): MemberResponseDto {
-    return MemberResponseDto(
-        email = email,
-        nickname = nickname,
-    )
-}
+    companion object {
+        fun createMember(
+            email: String,
+            nickname: String,
+            password: String,
+        ): Member {
+            return Member(
+                email = email,
+                nickname = nickname,
+                password = password,
+                role = MemberRole.USER,
+                provider = null,
+                providerUserId = null,
+            )
+        }
 
-fun Member.toSignInResponseDto(token: String): SignInResponseDto {
-    return SignInResponseDto(
-        id = id!!,
-        email = email,
-        nickname = nickname,
-        token = token,
-    )
+        fun createSocialMember(
+            nickname: String,
+            provider: OAuth2Provider,
+            providerUserId: String,
+        ): Member {
+            return Member(
+                email = null,
+                nickname = nickname,
+                password = null,
+                role = MemberRole.USER,
+                provider = provider,
+                providerUserId = providerUserId,
+            )
+        }
+    }
 }
