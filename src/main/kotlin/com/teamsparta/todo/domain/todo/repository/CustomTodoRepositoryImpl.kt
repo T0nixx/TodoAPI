@@ -22,8 +22,7 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     ): OrderSpecifier<Instant> {
         return if (sortDirection == Direction.DESC == true) {
             todo.createdAt.desc()
-        }
-        else {
+        } else {
             todo.createdAt.asc()
         }
     }
@@ -41,8 +40,7 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
             builder.and(
                 if (isDescending == true) {
                     todo.id.lt(cursor)
-                }
-                else {
+                } else {
                     todo.id.gt(
                         cursor,
                     )
