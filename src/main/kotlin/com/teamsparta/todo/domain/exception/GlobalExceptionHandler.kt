@@ -36,12 +36,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
             ErrorResponse(
                 message =
-                "Invalid method arguments : " +
-                    e.fieldErrors.joinToString(", ") {
-                        "Field: ${it.field} " +
-                            "Message: ${it.defaultMessage} " +
-                            "RejectedValue: ${it.rejectedValue}"
-                    },
+                    "Invalid method arguments : " +
+                        e.fieldErrors.joinToString(", ") {
+                            "Field: ${it.field} " +
+                                "Message: ${it.defaultMessage} " +
+                                "RejectedValue: ${it.rejectedValue}"
+                        },
             ),
         )
     }

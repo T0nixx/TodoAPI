@@ -32,15 +32,15 @@ class JwtAuthenticationFilter(private val jwtProvider: JwtProvider) :
                 val authentication =
                     JwtAuthenticationToken(
                         principal =
-                        MemberPrincipal(
-                            id = memberId,
-                            isSocial = isSocial,
-                            roles = setOf(role),
-                        ),
+                            MemberPrincipal(
+                                id = memberId,
+                                isSocial = isSocial,
+                                roles = setOf(role),
+                            ),
                         details =
-                        WebAuthenticationDetailsSource().buildDetails(
-                            request,
-                        ),
+                            WebAuthenticationDetailsSource().buildDetails(
+                                request,
+                            ),
                     )
                 SecurityContextHolder.getContext().authentication =
                     authentication

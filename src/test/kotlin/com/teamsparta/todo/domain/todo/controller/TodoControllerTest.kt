@@ -29,130 +29,130 @@ import java.time.Instant
 @AutoConfigureMockMvc
 @ExtendWith(MockKExtension::class)
 class TodoControllerTest
-@Autowired
-constructor(
-    private val mockMvc: MockMvc,
-    private val jwtProvider: JwtProvider,
-    @MockkBean
-    private val todoService: TodoService,
-) : DescribeSpec(
-    {
-        extension(SpringExtension)
-        afterContainer {
-            clearAllMocks()
-        }
+    @Autowired
+    constructor(
+        private val mockMvc: MockMvc,
+        private val jwtProvider: JwtProvider,
+        @MockkBean
+        private val todoService: TodoService,
+    ) : DescribeSpec(
+            {
+                extension(SpringExtension)
+                afterContainer {
+                    clearAllMocks()
+                }
 
-        //        val todoService = mockk<TodoService>(block = {})
-        describe("POST /todos는") {
-            context("올바른 입력이 들어왔을 때") {
-                it("201 status code로 응답해야한다.") {
-                    val createdAt = Instant.now().toString()
-                    // given
-                    val memberId = 1L
-                    val memberRole = MemberRole.USER
-                    val title = "tilte"
-                    val content = "content"
-                    val createdTodoId = 10L
-                    val isSocial = false
+                //        val todoService = mockk<TodoService>(block = {})
+                describe("POST /todos는") {
+                    context("올바른 입력이 들어왔을 때") {
+                        it("201 status code로 응답해야한다.") {
+                            val createdAt = Instant.now().toString()
+                            // given
+                            val memberId = 1L
+                            val memberRole = MemberRole.USER
+                            val title = "tilte"
+                            val content = "content"
+                            val createdTodoId = 10L
+                            val isSocial = false
 
-                    every {
-                        todoService.createTodo(
-                            memberId,
-                            CreateTodoRequestDto(
-                                title = title,
-                                content = content,
-                            ),
-                        )
-                    } returns
-                        TodoResponseDto(
-                            id = 10L,
-                            content = "Test Content",
-                            memberId = 1L,
-                            status = "TODO",
-                            createdAt = createdAt,
-                            title = "Test Todo",
-                        )
-
-                    val jwtToken =
-                        jwtProvider.createToken(
-                            id = memberId,
-                            isSocial = isSocial,
-                            role = memberRole,
-                        )
-                    val request =
-                        CreateTodoRequestDto(
-                            title = title,
-                            content = content,
-                        )
-
-                    val result =
-                        mockMvc.perform(
-                            post("/todos")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header(
-                                    "Authorization",
-                                    "Bearer $jwtToken",
+                            every {
+                                todoService.createTodo(
+                                    memberId,
+                                    CreateTodoRequestDto(
+                                        title = title,
+                                        content = content,
+                                    ),
                                 )
-                                .content(
-                                    jacksonObjectMapper()
-                                        .writeValueAsString(
-                                            request,
+                            } returns
+                                TodoResponseDto(
+                                    id = 10L,
+                                    content = "Test Content",
+                                    memberId = 1L,
+                                    status = "TODO",
+                                    createdAt = createdAt,
+                                    title = "Test Todo",
+                                )
+
+                            val jwtToken =
+                                jwtProvider.createToken(
+                                    id = memberId,
+                                    isSocial = isSocial,
+                                    role = memberRole,
+                                )
+                            val request =
+                                CreateTodoRequestDto(
+                                    title = title,
+                                    content = content,
+                                )
+
+                            val result =
+                                mockMvc.perform(
+                                    post("/todos")
+                                        .accept(MediaType.APPLICATION_JSON)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .header(
+                                            "Authorization",
+                                            "Bearer $jwtToken",
+                                        )
+                                        .content(
+                                            jacksonObjectMapper()
+                                                .writeValueAsString(
+                                                    request,
+                                                ),
                                         ),
-                                ),
-                        ).andReturn()
+                                ).andReturn()
 
-                    result.response.status shouldBe 201
+                            result.response.status shouldBe 201
 
-                    val responseDto =
-                        jacksonObjectMapper().readValue(
-                            result.response.contentAsString,
-                            TodoResponseDto::class.java,
-                        )
+                            val responseDto =
+                                jacksonObjectMapper().readValue(
+                                    result.response.contentAsString,
+                                    TodoResponseDto::class.java,
+                                )
 
-                    responseDto.id shouldBe createdTodoId
+                            responseDto.id shouldBe createdTodoId
+                        }
+                    }
                 }
-            }
-        }
 
-        describe("GET /todos/{todoId}는") {
-            context("존재하지 않는 todoId에 대해 조회할 경우") {
-                it(
-                    "ModelNotFoundException에 대한 message가" +
-                        " 담긴 ErrorResponse로 응답해야 한다.",
-                ) {
-                    // given
-                    val todoId = 170L
+                describe("GET /todos/{todoId}는") {
+                    context("존재하지 않는 todoId에 대해 조회할 경우") {
+                        it(
+                            "ModelNotFoundException에 대한 message가" +
+                                " 담긴 ErrorResponse로 응답해야 한다.",
+                        ) {
+                            // given
+                            val todoId = 170L
 
-                    // when
-                    every {
-                        todoService.getTodoById(
-                            todoId,
-                        )
-                    } throws ModelNotFoundException("Todo", todoId)
+                            // when
+                            every {
+                                todoService.getTodoById(
+                                    todoId,
+                                )
+                            } throws ModelNotFoundException("Todo", todoId)
 
-                    // then
-                    val result =
-                        mockMvc.perform(
-                            get("/todos/$todoId")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(
-                                    MediaType.APPLICATION_JSON,
-                                ),
-                        ).andReturn()
+                            // then
+                            val result =
+                                mockMvc.perform(
+                                    get("/todos/$todoId")
+                                        .accept(MediaType.APPLICATION_JSON)
+                                        .contentType(
+                                            MediaType.APPLICATION_JSON,
+                                        ),
+                                ).andReturn()
 
-                    result.response.status shouldBe 400
+                            result.response.status shouldBe 400
 
-                    val responseDto =
-                        jacksonObjectMapper().readValue(
-                            result.response.contentAsString,
-                            ErrorResponse::class.java,
-                        )
+                            val responseDto =
+                                jacksonObjectMapper().readValue(
+                                    result.response.contentAsString,
+                                    ErrorResponse::class.java,
+                                )
 
-                    responseDto.message shouldBe "Model Todo not " +
-                        "found with given id $todoId"
+                            responseDto.message shouldBe "Model Todo not " +
+                                "found with given id $todoId"
+                        }
+                    }
                 }
-            }
-        }
-    },
-)
+            },
+        )
