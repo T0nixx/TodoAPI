@@ -20,7 +20,12 @@ class CustomTodoRepositoryImpl(private val queryFactory: JPAQueryFactory) :
     private fun getOrderSpecifier(
         sortDirection: Direction,
     ): OrderSpecifier<Instant> {
-        return if (sortDirection == Direction.DESC == true) todo.createdAt.desc() else todo.createdAt.asc()
+        return if (sortDirection == Direction.DESC == true) {
+            todo.createdAt.desc()
+        }
+        else {
+            todo.createdAt.asc()
+        }
     }
 
     override fun findPageFromCursorByWriterId(

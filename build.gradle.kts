@@ -43,10 +43,10 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.3")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    //jpa
+    // jpa
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-    //test
+    // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("com.h2database:h2")
 
@@ -60,7 +60,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-
 tasks.named(
     "compileKotlin",
     org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java,
@@ -70,6 +69,6 @@ tasks.named(
     }
 }
 
-tasks.withType<Test>().configureEach() {
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }

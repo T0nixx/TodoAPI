@@ -3,7 +3,7 @@ package com.teamsparta.todo.oauth2.client.naver
 import com.teamsparta.todo.domain.member.model.OAuth2Provider
 import com.teamsparta.todo.oauth2.client.OAuth2Client
 import com.teamsparta.todo.oauth2.client.naver.dto.NaverTokenResponseDto
-import com.teamsparta.todo.oauth2.client.naver.dto.NaverUserData
+import com.teamsparta.todo.oauth2.client.naver.dto.NaverUserDataDto
 import com.teamsparta.todo.oauth2.client.naver.dto.NaverUserResponseDto
 import com.teamsparta.todo.oauth2.dto.OAuth2LoginUserData
 import org.springframework.beans.factory.annotation.Value
@@ -72,7 +72,7 @@ class NaverOAuth2Client(
                 .uri(userDataUrl)
                 .header("Authorization", "Bearer $accessToken")
                 .retrieve()
-                .body<NaverUserResponseDto<NaverUserData>>()?.response
+                .body<NaverUserResponseDto<NaverUserDataDto>>()?.response
                 ?: throw RuntimeException("Get Naver user data failed.")
 
         return OAuth2LoginUserData(

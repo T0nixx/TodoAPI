@@ -66,19 +66,22 @@ class TodoServiceTest : BehaviorSpec(
                     val todoId = 5L
                     val title = "TEST"
                     val content = "TEST"
-                    val socialMember = Member.createSocialMember(
-                        provider = OAuth2Provider.NAVER,
-                        providerUserId = "SOME_PROVIDER_USER_ID",
-                        nickname = "SOME_NICKNAME",
-                    )
+                    val socialMember =
+                        Member.createSocialMember(
+                            provider = OAuth2Provider.NAVER,
+                            providerUserId = "SOME_PROVIDER_USER_ID",
+                            nickname = "SOME_NICKNAME",
+                        )
 
-                    every { todoRepository.findByIdOrNull(todoId) } returns Todo(
-                        title = title,
-                        content = content,
-                        member = socialMember,
-                    ).also { it.id = todoId }
+                    every { todoRepository.findByIdOrNull(todoId) } returns
+                        Todo(
+                            title = title,
+                            content = content,
+                            member = socialMember,
+                        ).also { it.id = todoId }
 
-                    every { commentRepository.findAllByTodoId(todoId) } returns emptyList()
+                    every { commentRepository.findAllByTodoId(todoId) } returns
+                        emptyList()
 
                     val result = todoService.getTodoById(todoId)
 

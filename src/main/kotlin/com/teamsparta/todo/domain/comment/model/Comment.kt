@@ -24,7 +24,6 @@ class Comment(
     @JoinColumn(name = "todo_id", nullable = false)
     val todo: Todo,
 ) {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null

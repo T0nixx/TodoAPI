@@ -38,7 +38,9 @@ class GlobalExceptionHandler {
                 message =
                 "Invalid method arguments : " +
                     e.fieldErrors.joinToString(", ") {
-                        "Field: ${it.field} Message: ${it.defaultMessage} RejectedValue: ${it.rejectedValue}"
+                        "Field: ${it.field} " +
+                            "Message: ${it.defaultMessage} " +
+                            "RejectedValue: ${it.rejectedValue}"
                     },
             ),
         )

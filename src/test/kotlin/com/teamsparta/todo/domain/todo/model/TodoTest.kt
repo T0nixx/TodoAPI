@@ -1,7 +1,6 @@
 package com.teamsparta.todo.domain.todo.model
 
 import com.teamsparta.todo.domain.member.model.Member
-import com.teamsparta.todo.domain.member.model.MemberRole
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -32,23 +31,21 @@ class TodoTest : BehaviorSpec(
                 Then("입력된 값을 바탕으로 Todo가 반환되어야한다.") {
                     val email = "test@test.com"
                     val password = "123123"
-                    val role = MemberRole.USER
                     val nickname = "Test Nickname"
                     val memberId = 5L
                     val member =
-                        Member(
+                        Member.createMember(
                             email = email,
                             password = password,
-                            role = role,
                             nickname = nickname,
                         ).also { it.id = memberId }
 
-                    val todo = Todo(
-                        title = title,
-                        content = content,
-                        member = member,
-                        socialMember = null,
-                    ).also { it.id = todoId }
+                    val todo =
+                        Todo(
+                            title = title,
+                            content = content,
+                            member = member,
+                        ).also { it.id = todoId }
 
                     todo.id shouldBe todoId
                     todo.title shouldBe title
@@ -56,7 +53,6 @@ class TodoTest : BehaviorSpec(
                     todo.status shouldBe TodoStatus.TODO
                     todo.createdAt shouldBeLessThan Instant.now()
                     todo.member shouldBe member
-                    todo.socialMember shouldBe null
                 }
             }
         }
@@ -66,13 +62,21 @@ class TodoTest : BehaviorSpec(
                 Then("IllegalArgumentException이 발생한다.") {
                     val errorMessage =
                         "Either member or social_member must be set."
-
+                    val email = "test@test.com"
+                    val password = "123123"
+                    val nickname = "Test Nickname"
+                    val memberId = 5L
+                    val member =
+                        Member.createMember(
+                            email = email,
+                            password = password,
+                            nickname = nickname,
+                        ).also { it.id = memberId }
                     shouldThrow<IllegalArgumentException> {
                         Todo(
                             title = title,
                             content = content,
-                            member = null,
-                            socialMember = null,
+                            member = member,
                         ).also { it.id = todoId }
                     }.message shouldBe errorMessage
                 }

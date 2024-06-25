@@ -1,6 +1,6 @@
 package com.teamsparta.todo.oauth2.client.naver.dto
 
-data class NaverUserData(
+data class NaverUserDataDto(
     val id: String,
     val nickname: String,
     val email: String,

@@ -23,6 +23,8 @@ class OAuth2ClientService(private val clients: List<OAuth2Client>) {
 
     private fun selectClient(provider: OAuth2Provider): OAuth2Client {
         return clients.find { it.support(provider) }
-            ?: throw IllegalArgumentException("Provider $provider is not supported")
+            ?: throw IllegalArgumentException(
+                "Provider $provider is not supported",
+            )
     }
 }

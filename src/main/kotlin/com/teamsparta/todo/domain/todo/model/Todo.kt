@@ -32,7 +32,6 @@ class Todo(
     @JoinColumn(name = "member_id")
     val member: Member,
 ) {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -48,7 +47,10 @@ class Todo(
     fun updateStatus(newStatusString: String) {
         val newStatus =
             enumValues<TodoStatus>().find { it.name == newStatusString }
-                ?: throw IllegalArgumentException("$newStatusString is invalid status.")
+                ?: throw IllegalArgumentException(
+                    "$newStatusString is " +
+                        "invalid status.",
+                )
         if (newStatus == this.status) {
             throw IllegalArgumentException(
                 "New status: $newStatusString is same with old one.",

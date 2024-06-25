@@ -61,7 +61,11 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun deleteComment(memberId: Long, todoId: Long, commentId: Long) {
+    override fun deleteComment(
+        memberId: Long,
+        todoId: Long,
+        commentId: Long,
+    ) {
         val todo = getTodoOrThrow(todoId)
         val comment = getCommentOrThrow(commentId)
 
@@ -77,7 +81,8 @@ class CommentServiceImpl(
     ) {
         if (comment.todo.id != todo.id) {
             throw IllegalArgumentException(
-                "This Comment (id: $comment.id) does not belong to Todo (id: $todo.id).",
+                "This Comment (id: $comment.id)" +
+                    " does not belong to Todo (id: $todo.id).",
             )
         }
     }
